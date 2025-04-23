@@ -1,6 +1,5 @@
 package com.delivery.igo.igo_delivery.api.store.entity;
 
-import com.delivery.igo.igo_delivery.api.order.entity.Orders;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -11,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalDateTime;
+
+import static javax.swing.text.html.HTML.Attribute.N;
 
 @Entity
 @NoArgsConstructor
@@ -29,13 +30,13 @@ public class Stores extends BaseEntity {
     @JoinColumn(name = "users_id", nullable = false)
     private Users users;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private String storeName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String storeAddress;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String storePhoneNumber;
 
     @Column(nullable = false)
@@ -54,7 +55,11 @@ public class Stores extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StoreStatus storeStatus;
 
-    // ToDo 리뷰수 별점 평균 - 동시성 제어 시 작성하기
+    @Column(nullable = false)
+    private Integer reviewCount = 0;
+
+    @Column(nullable = false)
+    private Double avgRating = 0.0;
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
