@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public ResponseEntity<ErrorDto> authFailedException(AuthException e, HttpServletRequest request) {
-        log.error("[authFiledException] ex: ", e);
+        log.error("[authFailedException] ex: ", e);
         ErrorCode errorCode = e.getErrorCode();
 
         ErrorDto errorDto = new ErrorDto(
