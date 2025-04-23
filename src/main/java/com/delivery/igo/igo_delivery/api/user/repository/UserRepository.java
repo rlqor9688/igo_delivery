@@ -2,16 +2,11 @@ package com.delivery.igo.igo_delivery.api.user.repository;
 
 import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
-    // 전체 이메일 검색
-    Optional<Users> findByEmail(String email);
-
     // 유저 상태 조회
     Optional<Users> findByEmailAndUserStatus(String email, UserStatus userStatus);
 

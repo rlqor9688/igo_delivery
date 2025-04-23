@@ -2,7 +2,6 @@ package com.delivery.igo.igo_delivery.common.validation;
 
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.annotation.Duplicate;
-import com.delivery.igo.igo_delivery.common.annotation.Password;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;

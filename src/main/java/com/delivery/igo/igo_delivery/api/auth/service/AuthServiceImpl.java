@@ -10,7 +10,6 @@ import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.config.PasswordEncoder;
 import com.delivery.igo.igo_delivery.common.exception.AuthException;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
-import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import com.delivery.igo.igo_delivery.common.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

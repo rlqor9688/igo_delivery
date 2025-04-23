@@ -1,6 +1,5 @@
 package com.delivery.igo.igo_delivery.common.config;
 
-import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.exception.AuthException;
