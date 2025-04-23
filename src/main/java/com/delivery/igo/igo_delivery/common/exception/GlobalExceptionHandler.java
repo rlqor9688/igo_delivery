@@ -18,6 +18,27 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /**
+     * 공통 예외 응답
+     *
+     * @param e GlobalException
+     * @param request 서블릿 요청
+     * @return ErrorDto, 상태코드
+     */
+    @ExceptionHandler
+    public ResponseEntity<ErrorDto> globalException(GlobalException e, HttpServletRequest request) {
+        log.error("[globalException] ex: ", e);
+        ErrorCode errorCode = e.getErrorCode();
+
+        ErrorDto errorDto = new ErrorDto(
+                errorCode.getHttpStatus().value(),
+                errorCode.getMessage(),
+                LocalDateTime.now(),
+                request.getRequestURI());
+
+        return new ResponseEntity<>(errorDto, errorCode.getHttpStatus());
+    }
+
+    /**
      * 인증 실패 시 발생하는 예외 응답
      *
      * @param e AuthException
@@ -62,4 +83,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
         return new ResponseEntity<>(errorDto, ErrorCode.VALID_BAD_REQUEST.getHttpStatus());
     }
+
+
 }
