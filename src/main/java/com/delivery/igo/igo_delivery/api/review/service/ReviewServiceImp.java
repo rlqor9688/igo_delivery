@@ -12,6 +12,7 @@ import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import static com.delivery.igo.igo_delivery.common.exception.ErrorCode.ORDER_NOT
 import static com.delivery.igo.igo_delivery.common.exception.ErrorCode.STORE_NOT_FOUND;
 
 @Service
+@AllArgsConstructor
 @Slf4j
 public class ReviewServiceImp implements ReviewService {
 
