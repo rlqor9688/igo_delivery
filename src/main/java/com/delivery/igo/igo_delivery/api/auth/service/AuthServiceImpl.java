@@ -47,7 +47,6 @@ public class AuthServiceImpl implements AuthService {
         Users user = userRepository.findByEmailAndUserStatus(loginRequest.getEmail(), UserStatus.LIVE).orElseThrow(
                 () -> new AuthException(ErrorCode.USER_NOT_FOUND));
 
-        // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401을 반환합니다.
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new AuthException(ErrorCode.LOGIN_FAILED);
         }
