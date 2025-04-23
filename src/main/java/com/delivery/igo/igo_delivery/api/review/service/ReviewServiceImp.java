@@ -10,14 +10,20 @@ import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static com.delivery.igo.igo_delivery.common.exception.ErrorCode.ORDER_NOT_FOUND;
+import static com.delivery.igo.igo_delivery.common.exception.ErrorCode.STORE_NOT_FOUND;
+
 @Service
 @Slf4j
-public class ReviewServiceImp implements ReviewService{
+public class ReviewServiceImp implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
@@ -25,12 +31,14 @@ public class ReviewServiceImp implements ReviewService{
     private final UserRepository userRepository;
 
     @Override
-    public ReviewResponseDto createReview(Authuser authuser, ReviewRequestDto requestDto) {
-        Users findUser = userRepository.findById(authuser.getId());
+    @Transactional(readOnly = true)
+    public ReviewResponseDto createReview(AuthUser authUser, ReviewRequestDto requestDto) {
+        // 유저, 주문, 가게 정보 DB에서 찾기
+        Users findUser = userRepository.findById(authUser.getId());
         Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
-                .orElseThrow(() -> new GlobalException(ORDER_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
         Stores findStore = storeRepository.findById(requestDto.getStoresId())
-                .orElseThrow(() -> new GlobalException(STORE_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
 
         // 리뷰 생성
         Reviews review = new Reviews(
