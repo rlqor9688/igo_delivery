@@ -54,5 +54,14 @@ public class Reviews extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        this.reviewStatus = ReviewStatus.DELETED;
+    }
+
+    public Reviews(Users users, Orders orders, Stores stores, String content, Integer rating) {
+        this.users = users;
+        this.orders = orders;
+        this.stores = stores;
+        this.content = content;
+        this.rating = rating;
     }
 }
