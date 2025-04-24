@@ -1,6 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
-import com.delivery.igo.igo_delivery.api.user.dto.resonse.FindUserResponseDto;
+import com.delivery.igo.igo_delivery.api.user.dto.resonse.UserResponseDto;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
@@ -46,7 +46,7 @@ class UserServiceImplUnitTest {
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
 
         // when
-        FindUserResponseDto findUserDto = userService.findUserById(1L, authUser);
+        UserResponseDto findUserDto = userService.findUserById(1L, authUser);
 
         // then
         assertEquals(user.getId(), findUserDto.getId());

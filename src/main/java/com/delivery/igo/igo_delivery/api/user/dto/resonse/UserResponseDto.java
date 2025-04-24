@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class FindUserResponseDto {
+public class UserResponseDto {
 
     private final Long id;
     private final String email;
@@ -19,8 +19,8 @@ public class FindUserResponseDto {
     private final LocalDateTime createAt;
     private final LocalDateTime modifiedAt;
 
-    public static FindUserResponseDto from(Users findUser) {
-        return new FindUserResponseDto(
+    public static UserResponseDto from(Users findUser) {
+        return new UserResponseDto(
                 findUser.getId(),
                 findUser.getEmail(),
                 findUser.getNickname(),
