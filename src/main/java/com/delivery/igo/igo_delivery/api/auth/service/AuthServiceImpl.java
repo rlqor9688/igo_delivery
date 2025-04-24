@@ -10,6 +10,7 @@ import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.config.PasswordEncoder;
+import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.exception.AuthException;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.util.JwtUtil;
@@ -58,5 +59,16 @@ public class AuthServiceImpl implements AuthService {
 
         String bearerToken = jwtUtil.createToken(user);
         return new LoginResponseDto(bearerToken);
+    }
+
+    @Override
+    @Transactional
+    public void logout(AuthUser authUser) {
+        Users user = userRepository.findByEmail(authUser.getEmail())
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getId().equals(authUser.getId())) {
+            throw new AuthException(ErrorCode.FORBIDDEN);
+        }
     }
 }
