@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
             throw new GlobalException(ErrorCode.USER_EXIST_NICKNAME);
         }
 
-        users.validateAccess(authUser); // 로그인한 보인인지 검증
+        users.validateAccess(authUser); // 로그인한 본인인지 검증
         users.validateDelete();         // 삭제 검증
         users.updateBy(requestDto);     // 업데이트
 
