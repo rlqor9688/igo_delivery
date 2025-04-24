@@ -1,5 +1,6 @@
 package com.delivery.igo.igo_delivery.api.menu.entity;
 
+import com.delivery.igo.igo_delivery.api.menu.dto.request.MenuRequestDto;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
 import jakarta.annotation.Nullable;
@@ -45,5 +46,14 @@ public class Menus extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public static Menus of(Stores stores, MenuRequestDto requestDto) {
+
+        return Menus.builder()
+                .stores(stores)
+                .menuName(requestDto.getMenuName())
+                .price(requestDto.getPrice())
+                .build();
     }
 }
