@@ -13,7 +13,7 @@ public class CartResponse {
     private final Long userId;
     private final Long cartId;
 
-    public static CartResponse of(Carts carts){
+    public static CartResponse from(Carts carts){
         return new CartResponse(carts.getUsers().getId(), carts.getId());
     }
 }

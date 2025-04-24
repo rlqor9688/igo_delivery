@@ -68,7 +68,7 @@ public class CartServiceImpl implements CartService{
             CartItems newItem = new CartItems(menus, carts, menus.getPrice(), request.getCartQuantity());
             cartItemsRepository.save(newItem);
         }
-        return CartResponse.of(carts);
+        return CartResponse.from(carts);
     }
 
 
