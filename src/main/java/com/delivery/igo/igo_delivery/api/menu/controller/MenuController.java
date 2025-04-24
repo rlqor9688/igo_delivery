@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,8 +27,18 @@ public class MenuController {
     public ResponseEntity<MenuResponseDto> createMenu(@Auth AuthUser authUser, @PathVariable Long storesId,
                                                       @Valid @RequestBody MenuRequestDto requestDto) {
 
-        MenuResponseDto menu = menuService.createMenu(authUser, storesId, requestDto);
+        MenuResponseDto responseDto = menuService.createMenu(authUser, storesId, requestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(menu);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MenuResponseDto> updateMenu(@Auth AuthUser authUser, @PathVariable Long storesId,
+                                                      @PathVariable Long id,
+                                                      @Valid @RequestBody MenuRequestDto requestDto) {
+
+        MenuResponseDto responseDto = menuService.updateMenu(authUser, storesId, id, requestDto);
+
+        return ResponseEntity.ok(responseDto);
     }
 }

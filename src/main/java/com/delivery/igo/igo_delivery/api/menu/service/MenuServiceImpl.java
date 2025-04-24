@@ -52,4 +52,30 @@ public class MenuServiceImpl implements MenuService {
 
         return MenuResponseDto.of(savedMenu);
     }
+
+    @Override
+    @Transactional
+    public MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto) {
+
+        Users user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getUserRole() != UserRole.OWNER) {
+
+            throw new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN);
+        }
+
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        if (!Objects.equals(user.getId(), store.getUsers().getId())) {
+
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
+
+        Menus menu = menuRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
+        menu.updateMenu(requestDto);
+
+        return MenuResponseDto.of(menu);
+    }
 }

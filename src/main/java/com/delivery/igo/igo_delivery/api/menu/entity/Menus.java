@@ -56,4 +56,10 @@ public class Menus extends BaseEntity {
                 .price(requestDto.getPrice())
                 .build();
     }
+
+    public void updateMenu(MenuRequestDto requestDto) {
+
+        this.menuName = requestDto.getMenuName();
+        this.price = requestDto.getPrice();
+    }
 }
