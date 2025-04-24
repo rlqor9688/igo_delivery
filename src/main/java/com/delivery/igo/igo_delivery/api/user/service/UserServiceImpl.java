@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
         // 닉네임 변경 시 변경할 닉네임이 DB에 있으면 예외 발생
         if (!users.getNickname().equals(requestDto.getNickname()) &&
                 userRepository.existsByNickname(requestDto.getNickname())) {
-            throw new AuthException(ErrorCode.USER_EXIST_NICKNAME);
+            throw new GlobalException(ErrorCode.USER_EXIST_NICKNAME);
         }
 
         users.validateAccess(authUser); // 로그인한 보인인지 검증
