@@ -10,6 +10,7 @@ import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponseDto updateUserById(Long id, AuthUser authUser, UpdateUserRequestDto requestDto) {
         Users users = userRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
