@@ -3,7 +3,10 @@ package com.delivery.igo.igo_delivery.api.review.controller;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewRequestDto;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewResponseDto;
 import com.delivery.igo.igo_delivery.api.review.service.ReviewService;
+import com.delivery.igo.igo_delivery.common.annotation.Auth;
+import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +24,7 @@ public class ReviewController {
             @Auth AuthUser authUser,
             ReviewRequestDto requestDto)
     {
-        return ResponseEntity.ok(reviewService.createReview(authUser, requestDto));
+        return new ResponseEntity<>(reviewService.createReview(authUser, requestDto), HttpStatus.CREATED);
     }
 
 }

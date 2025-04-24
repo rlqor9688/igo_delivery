@@ -2,6 +2,7 @@ package com.delivery.igo.igo_delivery.api.review.service;
 
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewRequestDto;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewResponseDto;
+import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 
 import java.util.List;
 
