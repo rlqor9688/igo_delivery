@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 import java.sql.Time;
 import java.time.LocalDateTime;
 
-import static javax.swing.text.html.HTML.Attribute.N;
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
