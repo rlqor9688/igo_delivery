@@ -57,7 +57,7 @@ public class CartServiceImpl implements CartService{
                     .anyMatch(storeId -> !storeId.equals(menus.getStores().getId()));
 
             if (haveOtherStoreItems) {
-                cartItems.ifPresent(item -> cartItemsRepository.deleteAll(List.of(item)));
+                cartItemsRepository.deleteAll(List.of(existingItem));
                 CartItems newItem = new CartItems(menus, carts, menus.getPrice(), request.getCartQuantity());
                 cartItemsRepository.save(newItem);
             }
