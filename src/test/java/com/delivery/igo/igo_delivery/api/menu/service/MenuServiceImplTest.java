@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import com.delivery.igo.igo_delivery.api.menu.dto.request.MenuRequestDto;
 import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
@@ -78,6 +80,10 @@ class MenuServiceImplTest {
         MenuResponseDto responseDto = menuService.createMenu(authUser, storeId, requestDto);
 
         assertNotNull(responseDto);
+
+        verify(userRepository).findById(authUser.getId());
+        verify(storeRepository).findById(storeId);
+        verify(menuRepository).save(any(Menus.class));
     }
 
     @Test
@@ -104,6 +110,10 @@ class MenuServiceImplTest {
         });
 
         assertEquals("해당 가게의 사장님만 접근할 수 있습니다.", exception.getMessage());
+
+        verify(userRepository).findById(otherAuthUser.getId());
+        verify(storeRepository).findById(storeId);
+        verify(menuRepository, never()).save(any(Menus.class));
     }
 
     @Test
@@ -129,5 +139,8 @@ class MenuServiceImplTest {
         });
 
         assertEquals("매장 사장님이 아닙니다.", exception.getMessage());
+
+        verify(userRepository).findById(otherAuthUser.getId());
+        verify(storeRepository, never()).findById(storeId);
     }
 }
