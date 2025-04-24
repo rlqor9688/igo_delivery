@@ -26,4 +26,7 @@ public class Carts extends BaseEntity {
     @JoinColumn(name = "users_id", nullable = false)
     private Users users;
 
+    public Carts(Users users){
+        this.users = users;
+    }
 }
