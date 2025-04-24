@@ -5,6 +5,8 @@ import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
 import com.delivery.igo.igo_delivery.api.auth.dto.response.LoginResponseDto;
 import com.delivery.igo.igo_delivery.api.auth.dto.response.SignupResponseDto;
 import com.delivery.igo.igo_delivery.api.auth.service.AuthService;
+import com.delivery.igo.igo_delivery.common.annotation.Auth;
+import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,9 +31,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public  ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
         LoginResponseDto loginResponseDto = authService.login(requestDto);
 
         return new ResponseEntity<>(loginResponseDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<LoginResponseDto> logout(@Auth AuthUser authUser) {
+        authService.logout(authUser);
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 }
