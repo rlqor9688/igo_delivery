@@ -6,6 +6,8 @@ import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,11 @@ public class StoreServiceImpl implements StoreService{
     @Override
     @Transactional
     public StoreResponseDto createStore(StoreRequestDto requestDto, Users owner) {
+
+        // 사장님 권한이 아닌 경우 예외 발생
+        if (!owner.getUserRole().equals(UserRole.OWNER)) {
+            throw new GlobalException(ErrorCode.NOT_OWNER);
+        }
 
         // 사장이 이미 3개의 매장을 등록한 경우 예외 발생
         long count = storeRepository.countByUsersAndStoreStatusIsNot(owner, com.delivery.igo.igo_delivery.api.store.entity.StoreStatus.CLOSED);

@@ -30,6 +30,9 @@ public enum ErrorCode {
     DUPLICATED_USER(HttpStatus.BAD_REQUEST, "사용자 이름이나 email이 이미 등록되어있습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 
+    // Store
+    NOT_OWNER(HttpStatus.FORBIDDEN, "사장님 권한이 아닙니다."),
+
     // CartItem
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니를 찾을 수 없습니다.");
 

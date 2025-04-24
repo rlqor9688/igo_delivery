@@ -54,10 +54,10 @@ public class Stores extends BaseEntity {
     private StoreStatus storeStatus;
 
     @Column(nullable = false)
-    private Integer reviewCount = 0;
+    private Integer reviewCount = 0; // 리뷰 수 (초기값 0)
 
     @Column(nullable = false)
-    private Double avgRating = 0.0;
+    private Double avgRating = 0.0; // 평균 별점 (초기값 0.0)
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();

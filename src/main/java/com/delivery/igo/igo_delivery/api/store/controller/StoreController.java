@@ -4,6 +4,7 @@ import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.service.StoreService;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,10 @@ public class StoreController {
 
     // 매장 생성
     @PostMapping
-    public ResponseEntity<StoreResponseDto> createStore(@RequestBody StoreRequestDto requestDto, @AuthenticationPrincipal Users loginUser) {
+    public ResponseEntity<StoreResponseDto> createStore(
+            @Valid @RequestBody StoreRequestDto requestDto,
+            @AuthenticationPrincipal Users loginUser
+    ) {
         StoreResponseDto response = storeService.createStore(requestDto, loginUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
