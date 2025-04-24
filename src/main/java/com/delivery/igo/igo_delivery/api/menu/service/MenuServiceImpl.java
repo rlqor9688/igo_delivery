@@ -13,6 +13,8 @@ import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.exception.AuthException;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
+import com.delivery.igo.igo_delivery.common.validation.StoreValidator;
+import com.delivery.igo.igo_delivery.common.validation.UserValidator;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,28 +26,17 @@ public class MenuServiceImpl implements MenuService {
 
     private final MenuRepository menuRepository;
 
-    private final UserRepository userRepository;
+    private final UserValidator userValidator;
 
-    private final StoreRepository storeRepository;
+    private final StoreValidator storeValidator;
 
     @Override
     @Transactional
     public MenuResponseDto createMenu(AuthUser authUser, Long storesId, MenuRequestDto requestDto) {
 
-        Users user = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+        Users user = userValidator.validateOwner(authUser.getId());
 
-        if (user.getUserRole() != UserRole.OWNER) {
-
-            throw new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN);
-        }
-
-        Stores store = storeRepository.findById(storesId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
-
-        if (!Objects.equals(user.getId(), store.getUsers().getId())) {
-            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
-        }
+        Stores store = storeValidator.validateStoreOwner(storesId, user);
 
         Menus menu = Menus.of(store, requestDto);
         Menus savedMenu = menuRepository.save(menu);
@@ -57,21 +48,9 @@ public class MenuServiceImpl implements MenuService {
     @Transactional
     public MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto) {
 
-        Users user = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+        Users user = userValidator.validateOwner(authUser.getId());
 
-        if (user.getUserRole() != UserRole.OWNER) {
-
-            throw new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN);
-        }
-
-        Stores store = storeRepository.findById(storesId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
-
-        if (!Objects.equals(user.getId(), store.getUsers().getId())) {
-
-            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
-        }
+        Stores store = storeValidator.validateStoreOwner(storesId, user);
 
         Menus menu = menuRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
         menu.updateMenu(requestDto);
