@@ -1,94 +1,108 @@
-//package com.delivery.igo.igo_delivery.common.filter;
-//
-//import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
-//import com.delivery.igo.igo_delivery.common.util.JwtUtil;
-//import io.jsonwebtoken.Claims;
-//import io.jsonwebtoken.ExpiredJwtException;
-//import io.jsonwebtoken.MalformedJwtException;
-//import io.jsonwebtoken.UnsupportedJwtException;
-//import jakarta.servlet.*;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.servlet.http.HttpServletResponse;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//
-//import java.io.IOException;
-//
-//@Slf4j
-//@RequiredArgsConstructor
-//public class JwtFilter implements Filter {
-//
-//    private final JwtUtil jwtUtil;
-//
-//    @Override
-//    public void init(FilterConfig filterConfig) throws ServletException {
-//        Filter.super.init(filterConfig);
-//    }
-//
-//    @Override
-//    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-//        HttpServletRequest httpRequest = (HttpServletRequest) request;
-//        HttpServletResponse httpResponse = (HttpServletResponse) response;
-//
-//        String url = httpRequest.getRequestURI();
-//
-//        if (url.startsWith("/auth")) {
-//            chain.doFilter(request, response);
-//            return;
-//        }
-//
-//        String bearerJwt = httpRequest.getHeader("Authorization");
-//
-//        if (bearerJwt == null) {
-//            // 토큰이 없는 경우 400을 반환합니다.
-//            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "JWT 토큰이 필요합니다.");
-//            return;
-//        }
-//
-//        String jwt = jwtUtil.substringToken(bearerJwt);
-//
-//        try {
-//            // JWT 유효성 검사와 claims 추출
-//            Claims claims = jwtUtil.extractClaims(jwt);
-//            if (claims == null) {
-//                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "잘못된 JWT 토큰입니다.");
-//                return;
-//            }
-//
-//            UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
-//
-//            httpRequest.setAttribute("userId", Long.parseLong(claims.getSubject()));
-//            httpRequest.setAttribute("email", claims.get("email"));
-//            httpRequest.setAttribute("userRole", claims.get("userRole"));
-//
-//            if (url.startsWith("/admin")) {
-//                // 관리자 권한이 없는 경우 403을 반환합니다.
-//                if (!UserRole.ADMIN.equals(userRole)) {
-//                    httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "관리자 권한이 없습니다.");
-//                    return;
-//                }
-//                chain.doFilter(request, response);
-//                return;
-//            }
-//
-//            chain.doFilter(request, response);
-//        } catch (SecurityException | MalformedJwtException e) {
-//            log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.", e);
-//            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않는 JWT 서명입니다.");
-//        } catch (ExpiredJwtException e) {
-//            log.error("Expired JWT token, 만료된 JWT token 입니다.", e);
-//            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "만료된 JWT 토큰입니다.");
-//        } catch (UnsupportedJwtException e) {
-//            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.", e);
-//            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "지원되지 않는 JWT 토큰입니다.");
-//        } catch (Exception e) {
-//            log.error("Invalid JWT token, 유효하지 않는 JWT 토큰 입니다.", e);
-//            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "유효하지 않는 JWT 토큰입니다.");
-//        }
-//    }
-//
-//    @Override
-//    public void destroy() {
-//        Filter.super.destroy();
-//    }
-//}
+package com.delivery.igo.igo_delivery.common.filter;
+
+import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.ErrorDto;
+import com.delivery.igo.igo_delivery.common.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Slf4j
+@RequiredArgsConstructor
+public class JwtFilter extends OncePerRequestFilter {
+
+    private static final List<String> WHITE_LIST = List.of("/auth/signup", "/auth/login");
+
+    private final JwtUtil jwtUtil;
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        String url = request.getRequestURI();
+
+        if (isWhiteList(url)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String bearerJwt = request.getHeader("Authorization");
+
+        if (bearerJwt == null) {
+            setErrorResponse(response, ErrorCode.JWT_REQUIRED, url);
+            return;
+        }
+
+        String jwt = jwtUtil.substringToken(bearerJwt);
+
+        try {
+            Claims claims = jwtUtil.extractClaims(jwt);
+            if (claims == null) {
+                setErrorResponse(response, ErrorCode.JWT_BAD_TOKEN, url);
+                return;
+            }
+
+            UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
+
+            request.setAttribute("userId", Long.parseLong(claims.getSubject()));
+            request.setAttribute("email", claims.get("email"));
+            request.setAttribute("userRole", claims.get("userRole"));
+
+            if (url.startsWith("/admin") && !UserRole.ADMIN.equals(userRole)) {
+                setErrorResponse(response, ErrorCode.ROLE_ADMIN_FORBIDDEN, url);
+                return;
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("Invalid JWT signature", e);
+            setErrorResponse(response, ErrorCode.JWT_INVALID_SIGNATURE, url);
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token", e);
+            setErrorResponse(response, ErrorCode.JWT_EXPIRED, url);
+        } catch (Exception e) {
+            log.error("Invalid JWT token", e);
+            setErrorResponse(response, ErrorCode.JWT_INVALID_TOKEN, url);
+        }
+    }
+
+    private void setErrorResponse(HttpServletResponse response, ErrorCode errorCode, String path) throws IOException {
+        ErrorDto errorDto = new ErrorDto(
+                errorCode.getHttpStatus().value(),
+                errorCode.getMessage(),
+                LocalDateTime.now(),
+                path
+        );
+
+        response.setStatus(errorCode.getHttpStatus().value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        response.getWriter().write(mapper.writeValueAsString(errorDto));
+    }
+
+    private boolean isWhiteList(String uri) {
+        return WHITE_LIST.stream().anyMatch(uri::startsWith);
+    }
+}

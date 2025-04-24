@@ -1,4 +1,16 @@
 package com.delivery.igo.igo_delivery.api.user.repository;
 
-public interface UserRepository {
+import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
+import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<Users, Long> {
+    // 유저 상태 조회
+    Optional<Users> findByEmailAndUserStatus(String email, UserStatus userStatus);
+
+    boolean existsByEmail(String email);
+    boolean existsByNickname(String nickname);
+
 }
