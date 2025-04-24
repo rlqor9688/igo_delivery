@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -48,8 +49,19 @@ public class CartServiceImpl implements CartService{
         // 해당 메뉴가 장바구니에 존재하는지 여부 확인 후 메뉴 및 수량 추가
         Optional<CartItems> cartItems = cartItemsRepository.findByCartsAndMenus(carts, menus);
         if (cartItems.isPresent()) {
-            // 해당 메뉴 이미 존재할 경우 입력받은 만큼 수량 추가
+            // 상품의 데이터를 가져옴
             CartItems existingItem = cartItems.get();
+            // 다른 매장의 상품이 존재할 경우
+            boolean haveOtherStoreItems = cartItems.stream()
+                    .map(item -> item.getMenus().getStores().getId())
+                    .anyMatch(storeId -> !storeId.equals(menus.getStores().getId()));
+
+            if (haveOtherStoreItems) {
+                cartItems.ifPresent(item -> cartItemsRepository.deleteAll(List.of(item)));
+                CartItems newItem = new CartItems(menus, carts, menus.getPrice(), request.getCartQuantity());
+                cartItemsRepository.save(newItem);
+            }
+            // 해당 메뉴 이미 존재할 경우 입력받은 만큼 수량 추가
             existingItem.addQuantity(request.getCartQuantity());
         } else {
             // 새로운 메뉴+수량 장바구니에 추가

@@ -9,6 +9,7 @@ import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.menu.entity.MenuStatus;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
+import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
@@ -27,6 +28,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -105,11 +107,14 @@ class CartServiceTest {
                 .users(users)
                 .build();
 
+        Stores store = Stores.builder().id(1L).build();
+
         Menus menus = Menus.builder()
                 .id(menusId)
                 .menuName("피자")
                 .price(10000L)
                 .menuStatus(MenuStatus.LIVE)
+                .stores(store)
                 .build();
 
         CartItems existingCartItem = CartItems.builder()
@@ -118,6 +123,7 @@ class CartServiceTest {
                 .cartPrice(menus.getPrice())
                 .cartQuantity(originalQuantity)
                 .build();
+
 
         CartRequest request = new CartRequest(menusId, addQuantity);
 
@@ -137,4 +143,36 @@ class CartServiceTest {
         verify(cartItemsRepository).findByCartsAndMenus(carts, menus);
     }
 
+
+    @Test
+    void 다른_매장_상품이_존재하면_기존_장바구니_물건_삭제_후_추가() {
+        // given
+        Long usersId = 1L;
+        Long menusId = 200L;
+
+        Users users = Users.builder().id(usersId).build();
+        Carts carts = Carts.builder().users(users).build();
+
+        Stores oldStore = Stores.builder().id(1L).build();
+        Stores newStore = Stores.builder().id(2L).build();
+        Menus oldMenu = Menus.builder().stores(oldStore).build();
+        Menus newMenu = Menus.builder().id(menusId).stores(newStore).price(1500L).build();
+
+        CartItems oldItem = CartItems.builder().menus(oldMenu).carts(carts).cartQuantity(1).build();
+        CartRequest request = new CartRequest(menusId, 1);
+        AuthUser authUser = new AuthUser(usersId, "email", "nickname", UserRole.CONSUMER);
+
+        given(userRepository.findById(usersId)).willReturn(Optional.of(users));
+        given(cartRepository.findByUsers(users)).willReturn(Optional.of(carts));
+        given(menuRepository.findById(menusId)).willReturn(Optional.of(newMenu));
+        given(cartItemsRepository.findByCartsAndMenus(carts, newMenu)).willReturn(Optional.of(oldItem));
+
+        // when
+        CartResponse response = cartService.addCart(authUser, request);
+
+        // then
+        assertNotNull(response);
+        verify(cartItemsRepository).deleteAll(List.of(oldItem));
+        verify(cartItemsRepository).save(any(CartItems.class));
+    }
 }
