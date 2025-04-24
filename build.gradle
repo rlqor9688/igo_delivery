@@ -33,6 +33,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // 통합 테스트를 위한 h2 DB
+    testImplementation 'com.h2database:h2'
+
     // bcrypt
     implementation 'at.favre.lib:bcrypt:0.10.2'
 
