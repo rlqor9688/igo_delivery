@@ -41,6 +41,5 @@ public class AuthController {
     public ResponseEntity<Void> logout(@Auth AuthUser authUser) {
         authService.logout(authUser);
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
 }
