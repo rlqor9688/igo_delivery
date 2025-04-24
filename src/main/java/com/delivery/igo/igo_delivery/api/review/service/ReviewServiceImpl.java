@@ -41,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public ReviewResponseDto createReview(AuthUser authUser, ReviewRequestDto requestDto) {
         // 로그인한 유저가 고객(CONSUMER)인지 확인
         if (!Objects.equals(authUser.getUserRole(), UserRole.CONSUMER)) {
