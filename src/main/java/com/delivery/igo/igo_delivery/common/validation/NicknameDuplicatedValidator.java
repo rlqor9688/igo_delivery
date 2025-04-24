@@ -12,7 +12,7 @@ public class NicknameDuplicatedValidator implements ConstraintValidator<Nickname
     private final UserRepository userRepository;
 
     @Override
-    public boolean isValid(String email, ConstraintValidatorContext context) {
-        return email != null && !userRepository.existsByNickname(email);
+    public boolean isValid(String nickname, ConstraintValidatorContext context) {
+        return nickname != null && !userRepository.existsByNickname(nickname);
     }
 }
