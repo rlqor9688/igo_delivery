@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String url = request.getRequestURI();
 
-        if (isWhiteList(request.getRequestURI())) {
+        if (isWhiteList(url)) {
             filterChain.doFilter(request, response);
             return;
         }

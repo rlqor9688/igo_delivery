@@ -1,6 +1,6 @@
 package com.delivery.igo.igo_delivery.common.annotation;
 
-import com.delivery.igo.igo_delivery.common.validation.DuplicatedValidator;
+import com.delivery.igo.igo_delivery.common.validation.NicknameDuplicatedValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -8,10 +8,10 @@ import java.lang.annotation.*;
 
 
 @Documented
-@Constraint(validatedBy = DuplicatedValidator.class)
+@Constraint(validatedBy = NicknameDuplicatedValidator.class)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Duplicate {
+public @interface NicknameDuplicate {
     String message();
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

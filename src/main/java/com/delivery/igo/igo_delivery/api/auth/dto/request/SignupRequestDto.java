@@ -1,6 +1,7 @@
 package com.delivery.igo.igo_delivery.api.auth.dto.request;
 
-import com.delivery.igo.igo_delivery.common.annotation.Duplicate;
+import com.delivery.igo.igo_delivery.common.annotation.EmailDuplicate;
+import com.delivery.igo.igo_delivery.common.annotation.NicknameDuplicate;
 import com.delivery.igo.igo_delivery.common.annotation.Password;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -15,11 +16,11 @@ public class SignupRequestDto {
 
     @NotBlank(message = "{auth.email.notblank}")
     @Email(message = "{auth.email.invalid}")
-    @Duplicate(message = "{auth.email.duplicate}")
+    @EmailDuplicate(message = "{auth.email.duplicate}")
     private String email;
 
     @NotBlank(message = "{auth.nickname.notblank}")
-    @Duplicate(message = "{auth.nickname.duplicate}")
+    @NicknameDuplicate(message = "{auth.nickname.duplicate}")
     private String nickname;
 
     @NotBlank(message = "{auth.password.notblank}")

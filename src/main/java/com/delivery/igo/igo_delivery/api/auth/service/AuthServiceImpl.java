@@ -26,11 +26,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public SignupResponseDto signup(SignupRequestDto requestDto) {
 
-        if (userRepository.existsByEmailAndUserStatus(requestDto.getEmail(), UserStatus.LIVE)) {
+        if (userRepository.existsByEmail(requestDto.getEmail())) {
             throw new AuthException(ErrorCode.USER_EXIST_EMAIL);
         }
 
-        if (userRepository.existsByNicknameAndUserStatus(requestDto.getNickname(), UserStatus.LIVE)) {
+        if (userRepository.existsByNickname(requestDto.getNickname())) {
             throw new AuthException(ErrorCode.USER_EXIST_NICKNAME);
         }
 
