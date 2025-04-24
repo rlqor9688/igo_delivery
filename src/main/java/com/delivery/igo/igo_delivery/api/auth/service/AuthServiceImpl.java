@@ -4,6 +4,8 @@ import com.delivery.igo.igo_delivery.api.auth.dto.request.LoginRequestDto;
 import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
 import com.delivery.igo.igo_delivery.api.auth.dto.response.LoginResponseDto;
 import com.delivery.igo.igo_delivery.api.auth.dto.response.SignupResponseDto;
+import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
+import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
@@ -22,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CartRepository cartRepository;
 
     @Transactional
     public SignupResponseDto signup(SignupRequestDto requestDto) {
@@ -38,6 +41,8 @@ public class AuthServiceImpl implements AuthService {
 
         Users newUser = Users.of(requestDto, encodedPassword);
         Users savedUser = userRepository.save(newUser);
+
+        cartRepository.save(new Carts(savedUser));
 
         return SignupResponseDto.of(savedUser);
     }
