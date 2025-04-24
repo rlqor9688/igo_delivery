@@ -4,6 +4,7 @@ import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
+import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +33,13 @@ public class StoreServiceTest {
     void 매장_정상_생성() {
 
         // given
-        Users owner = new Users();
+        Users owner = Users.builder()
+                .id(1L)
+                .email("testowner1@email.com")
+                .nickname("초코라떼")
+                .userRole(UserRole.OWNER)
+                .build();
+
         StoreRequestDto request = new StoreRequestDto(
                 "초코라떼가제일좋아",
                 "인천시 미추홀구",
@@ -65,7 +72,7 @@ public class StoreServiceTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.getStoreName()).isEqualTo("매장");
+        assertThat(response.getStoreName()).isEqualTo("초코라떼가제일좋아");
         verify(storeRepository).save(any(Stores.class));
     }
 }
