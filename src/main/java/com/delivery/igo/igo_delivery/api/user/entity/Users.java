@@ -73,6 +73,20 @@ public class Users extends BaseEntity {
         }
     }
 
+    // 사업자 계정인지 검증
+    public void validateOwner() {
+        if (userRole != UserRole.OWNER) {
+            throw new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN);
+        }
+    }
+
+    // 일반 고객인지 검증
+    public void validateConsumer() {
+        if (userRole != UserRole.CONSUMER) {
+            throw new GlobalException(ErrorCode.ROLE_CONSUMER_FORBIDDEN);
+        }
+    }
+
     public static Users of(SignupRequestDto signupRequestDto, String encodedPassword) {
         UserRole userRole = UserRole.of(signupRequestDto.getUserRole());
 
