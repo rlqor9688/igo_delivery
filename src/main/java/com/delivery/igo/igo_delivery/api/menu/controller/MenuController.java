@@ -7,6 +7,7 @@ import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,8 @@ public class MenuController {
     public ResponseEntity<MenuResponseDto> createMenu(@Auth AuthUser authUser, @PathVariable Long storesId,
                                                       @Valid @RequestBody MenuRequestDto requestDto) {
 
-        menuService.createMenu(authUser, storesId, requestDto);
+        MenuResponseDto menu = menuService.createMenu(authUser, storesId, requestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(menu);
     }
 }
