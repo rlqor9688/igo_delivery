@@ -3,10 +3,12 @@ package com.delivery.igo.igo_delivery.api.store.service;
 import com.delivery.igo.igo_delivery.api.store.converter.StoreConverter;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
+import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.transaction.Transactional;
@@ -17,23 +19,23 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class StoreServiceImpl implements StoreService{
 
-    // 매장 저장 및 조회를 위한 Repository
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
 
     // 매장 생성
-    @Override
     @Transactional
-    public StoreResponseDto createStore(StoreRequestDto requestDto, Users owner) {
+    @Override
+    public StoreResponseDto createStore(StoreRequestDto requestDto, Long userId) {
+        Users owner = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
         // 사장님 권한이 아닌 경우 예외 발생
-        if (!owner.getUserRole().equals(UserRole.OWNER)) {
-            throw new GlobalException(ErrorCode.NOT_OWNER);
-        }
+        owner.validateOwner();
 
         // 사장이 이미 3개의 매장을 등록한 경우 예외 발생
-        long count = storeRepository.countByUsersAndStoreStatusIsNot(owner, com.delivery.igo.igo_delivery.api.store.entity.StoreStatus.CLOSED);
+        long count = storeRepository.countByUsersAndStoreStatusIsNot(owner, StoreStatus.CLOSED);
         if (count >= 3) {
-            throw new IllegalStateException("매장은 최대 3개까지 운영할 수 있습니다.");
+            throw new GlobalException(ErrorCode.MAX_STORE_LIMIT);
         }
 
         // DTO -> 엔티티 변환 후 저장

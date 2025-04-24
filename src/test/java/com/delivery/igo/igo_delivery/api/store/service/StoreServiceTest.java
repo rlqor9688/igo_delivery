@@ -68,7 +68,7 @@ public class StoreServiceTest {
         when(storeRepository.save(any(Stores.class))).thenReturn(store);
 
         // when
-        var response = storeService.createStore(request, owner);
+        var response = storeService.createStore(request, owner.getId());
 
         // then
         assertThat(response).isNotNull();

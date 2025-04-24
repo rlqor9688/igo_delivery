@@ -2,6 +2,8 @@ package com.delivery.igo.igo_delivery.api.store.entity;
 
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
@@ -28,13 +31,13 @@ public class Stores extends BaseEntity {
     @JoinColumn(name = "users_id", nullable = false)
     private Users users;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false)
     private String storeName;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String storeAddress;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private String storePhoneNumber;
 
     @Column(nullable = false)
@@ -61,5 +64,11 @@ public class Stores extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void validateOwner(Users user) {
+        if (!Objects.equals(this.getUsers().getId(), user.getId())) {
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
     }
 }
