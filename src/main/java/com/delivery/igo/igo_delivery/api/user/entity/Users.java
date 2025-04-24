@@ -1,7 +1,10 @@
 package com.delivery.igo.igo_delivery.api.user.entity;
 
 import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
+import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
@@ -49,8 +53,24 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
+    // 삭제
     public void delete() {
-        this.deletedAt = LocalDateTime.now();
+        deletedAt = LocalDateTime.now();
+        userStatus = UserStatus.INACTIVE;
+    }
+
+    // 삭제 검증, 삭제 되었다면 예외 발생
+    public void validateDelete() {
+        if (userStatus == UserStatus.INACTIVE) {
+            throw new GlobalException(ErrorCode.DELETED_USER);
+        }
+    }
+
+    // 접근 권한 검증, 로그인한 유저의 id와 id가 다르면 예외 발생
+    public void validateAccess(AuthUser authUser) {
+        if (!Objects.equals(authUser.getId(), id)) {
+            throw new GlobalException(ErrorCode.FORBIDDEN);
+        }
     }
 
     public static Users of(SignupRequestDto signupRequestDto, String encodedPassword) {
