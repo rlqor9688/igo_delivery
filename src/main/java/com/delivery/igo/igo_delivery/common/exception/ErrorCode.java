@@ -50,7 +50,8 @@ public enum ErrorCode {
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니를 찾을 수 없습니다."),
 
     // Store
-    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다.");
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
+    STORE_OWNER_MISMATCH(HttpStatus.FORBIDDEN, "해당 가게의 사장님만 접근할 수 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
