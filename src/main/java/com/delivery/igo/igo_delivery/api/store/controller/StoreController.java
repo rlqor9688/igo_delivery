@@ -4,6 +4,11 @@ import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.service.StoreService;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
+import com.delivery.igo.igo_delivery.common.annotation.Auth;
+import com.delivery.igo.igo_delivery.common.dto.AuthUser;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,14 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreController {
 
     private final StoreService storeService;
+    private final UserRepository userRepository;
 
     // 매장 생성
     @PostMapping
     public ResponseEntity<StoreResponseDto> createStore(
-            @Valid @RequestBody StoreRequestDto requestDto,
-            @AuthenticationPrincipal Users loginUser
+            @Auth AuthUser loginUser,
+            @Valid @RequestBody StoreRequestDto requestDto
     ) {
-        StoreResponseDto response = storeService.createStore(requestDto, loginUser);
+        Users user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+        StoreResponseDto response = storeService.createStore(requestDto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

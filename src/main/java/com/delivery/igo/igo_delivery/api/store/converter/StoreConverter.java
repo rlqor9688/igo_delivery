@@ -13,7 +13,6 @@ public class StoreConverter {
     // 매장 생성 요청 DTO를 엔티티로 변환
     public static Stores toEntity(StoreRequestDto dto, Users owner) {
         return Stores.builder()
-                .users(owner)
                 .storeName(dto.getStoreName())
                 .storeAddress(dto.getStoreAddress())
                 .storePhoneNumber(dto.getStorePhoneNumber())
@@ -21,6 +20,9 @@ public class StoreConverter {
                 .endTime(Time.valueOf(dto.getEndTime()))
                 .minOrderPrice(dto.getMinOrderPrice())
                 .storeStatus(StoreStatus.LIVE)
+                .users(owner)
+                .reviewCount(0)
+                .avgRating(0.0)
                 .build();
     }
 

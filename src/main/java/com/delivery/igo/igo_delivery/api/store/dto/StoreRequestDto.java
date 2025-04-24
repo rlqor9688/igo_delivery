@@ -14,22 +14,22 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class StoreRequestDto {
 
-    @NotBlank(message = "매장 이름은 필수입니다.")
+    @NotBlank(message = "{store.storeName.notblank}")
     private String storeName;           // 매장명
 
-    @NotBlank(message = "매장 주소는 필수입니다.")
+    @NotBlank(message = "{store.storeAddress.notblank}")
     private String storeAddress;        // 매장 주소
 
-    @NotBlank(message = "매장 전화번호는 필수입니다.")
+    @NotBlank(message = "{store.storePhoneNumber.notblank}")
     private String storePhoneNumber;    // 매장 전화번호
 
-    @NotNull(message = "오픈 시간은 필수입니다.")
+    @NotNull(message = "{store.openTime.notnull}")
     private LocalTime openTime;         // 오픈 시간
 
-    @NotNull(message = "마감 시간은 필수입니다.")
+    @NotNull(message = "{store.endTime.notnull}")
     private LocalTime endTime;          // 마감 시간
 
-    @NotNull(message = "최소 주문 금액은 필수입니다.")
-    @Min(value = 10000, message = "최소 주문 금액은 10000원 이상이어야 합니다.")
+    @NotNull(message = "{store.minOrderPrice.notnull}")
+    @Min(value = 1000, message = "{store.minOrderPrice.min}")
     private Integer minOrderPrice;      // 최소 주문 금액
 }
