@@ -57,18 +57,10 @@ public class Users extends BaseEntity {
 
     // 내 정보 수정
     public void updateBy(UpdateUserRequestDto requestDto) {
-        if (requestDto.getNickname() != null) {
-            this.nickname = requestDto.getNickname();
-        }
-        if (requestDto.getPhoneNumber() != null) {
-            this.phoneNumber = requestDto.getPhoneNumber();
-        }
-        if (requestDto.getAddress() != null) {
-            this.address = requestDto.getAddress();
-        }
-        if (requestDto.getRole() != null) {
-            this.userRole = requestDto.getRole();
-        }
+        this.nickname = requestDto.getNickname();
+        this.phoneNumber = requestDto.getPhoneNumber();
+        this.address = requestDto.getAddress();
+        this.userRole = requestDto.getRole();
     }
 
     // 비밀번호 수정
