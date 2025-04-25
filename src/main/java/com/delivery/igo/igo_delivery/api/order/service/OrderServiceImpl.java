@@ -148,12 +148,12 @@ public class OrderServiceImpl implements OrderService{
         boolean isStoreOwner = orderItems.stream()
                 .map(item -> item.getMenus().getStores().getUsers().getId())
                 .distinct()
-                .allMatch(ownerId -> ownerId.equals(users.getId()));
+                .allMatch(ownerId -> ownerId.equals(authUser.getId()));
 
-        if (!(isOrderUser || isStoreOwner)) {
-            throw new GlobalException(ErrorCode.FORBIDDEN);
+        if (isOrderUser || isStoreOwner) {
+            return OrderResponse.from(orders,orderItems);
         }
-        return OrderResponse.from(orders,orderItems);
+        throw new GlobalException(ErrorCode.FORBIDDEN);
     }
 
 

@@ -13,5 +13,5 @@ public interface OrderService {
 
     ChangeOrderStatusResponse changeOrderStatus(AuthUser authUser, ChangeOrderStatusRequest request, Long ordersId);
 
-//    OrderResponse findOrder(AuthUser authUser, Long ordersId);
+    OrderResponse findOrder(AuthUser authUser, Long ordersId);
 }

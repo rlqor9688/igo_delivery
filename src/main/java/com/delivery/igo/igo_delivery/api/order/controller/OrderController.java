@@ -40,12 +40,12 @@ public class OrderController {
         return ResponseEntity.ok(orderService.changeOrderStatus(authUser,request,ordersId));
     }
 
-//    //주문 단건 조회
-//    @GetMapping("/{ordersId}")
-//    public ResponseEntity<OrderResponse> findOrder(
-//            @Auth AuthUser authUser,
-//            @PathVariable Long ordersId
-//    ){
-//        return ResponseEntity.ok(orderService.findOrder(authUser,ordersId));
-//    }
+    //주문 단건 조회
+    @GetMapping("/{ordersId}")
+    public ResponseEntity<OrderResponse> findOrder(
+            @Auth AuthUser authUser,
+            @PathVariable Long ordersId
+    ){
+        return ResponseEntity.ok(orderService.findOrder(authUser,ordersId));
+    }
 }
