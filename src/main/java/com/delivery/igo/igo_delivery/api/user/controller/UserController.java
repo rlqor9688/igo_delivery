@@ -1,5 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.controller;
 
+import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.resonse.UserResponseDto;
@@ -53,4 +54,13 @@ public class UserController {
 
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id,
+                                           @Auth AuthUser authUser,
+                                           @Valid @RequestBody DeleteUserRequestDto requestDto) {
+
+        userService.deleteUser(id, authUser, requestDto);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
 }
