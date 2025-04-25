@@ -16,7 +16,7 @@ public class ReviewResponseDto {
     private String content;
     private LocalDateTime createdAt;
 
-    public static ReviewResponseDto of(Reviews reviews) {
+    public static ReviewResponseDto from(Reviews reviews) {
         return new ReviewResponseDto(
                 reviews.getUsers().getId(),
                 reviews.getRating(),

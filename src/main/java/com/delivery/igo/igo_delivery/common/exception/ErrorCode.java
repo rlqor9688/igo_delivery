@@ -55,7 +55,8 @@ public enum ErrorCode {
     // Review
     REVIEW_USER_MISMATCH(HttpStatus.FORBIDDEN, "본인의 주문에만 리뷰를 남길 수 있습니다."),
     REVIEW_STORE_MISMATCH(HttpStatus.FORBIDDEN, "주문한 가게 정보와 다릅니다."),
-    REVIEW_ORDERITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 아이템을 찾을 수 없습니다.");
+    REVIEW_ORDERITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 아이템을 찾을 수 없습니다."),
+    REVIEW_ORDER_INVALID(HttpStatus.BAD_REQUEST, "주문이 완료된 건에만 리뷰를 남길 수 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
