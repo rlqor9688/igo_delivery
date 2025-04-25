@@ -4,7 +4,6 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -114,7 +113,7 @@ class MenuServiceCreateTest {
             menuService.createMenu(otherAuthUser, storeId, requestDto);
         });
 
-        assertEquals("해당 가게의 사장님만 접근할 수 있습니다.", exception.getMessage());
+        assertEquals(ErrorCode.STORE_OWNER_MISMATCH, exception.getErrorCode());
 
         verify(userRepository).findById(otherAuthUser.getId());
         verify(storeRepository).findById(storeId);
@@ -143,7 +142,7 @@ class MenuServiceCreateTest {
             menuService.createMenu(otherAuthUser, storeId, requestDto);
         });
 
-        assertEquals("매장 사장님이 아닙니다.", exception.getMessage());
+        assertEquals(ErrorCode.ROLE_OWNER_FORBIDDEN, exception.getErrorCode());
 
         verify(userRepository).findById(otherAuthUser.getId());
         verify(storeRepository, never()).findById(storeId);

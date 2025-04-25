@@ -57,7 +57,9 @@ public class MenuServiceImpl implements MenuService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
         store.validateOwner(user);
 
-        Menus menu = menuRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
+        Menus menu = menuRepository.findByIdAndStoresId(id, storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
+        menu.validateDelete();
         menu.updateMenu(requestDto);
 
         return MenuResponseDto.of(menu);

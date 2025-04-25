@@ -57,7 +57,8 @@ public enum ErrorCode {
     MAX_STORE_LIMIT(HttpStatus.BAD_REQUEST, "매장은 최대 3개까지 생성할 수 있습니다."),
 
     // Menu
-    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "메뉴를 찾을 수 없습니다.");
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "메뉴를 찾을 수 없습니다."),
+    DELETED_MENU(HttpStatus.NOT_FOUND, "삭제된 메뉴입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

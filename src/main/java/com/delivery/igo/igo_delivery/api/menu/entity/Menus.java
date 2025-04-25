@@ -3,10 +3,9 @@ package com.delivery.igo.igo_delivery.api.menu.entity;
 import com.delivery.igo.igo_delivery.api.menu.dto.request.MenuRequestDto;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
-import jakarta.annotation.Nullable;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Fetch;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +45,7 @@ public class Menus extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        this.menuStatus = MenuStatus.INACTIVE;
     }
 
     public static Menus of(Stores stores, MenuRequestDto requestDto) {
@@ -54,6 +54,7 @@ public class Menus extends BaseEntity {
                 .stores(stores)
                 .menuName(requestDto.getMenuName())
                 .price(requestDto.getPrice())
+                .menuStatus(MenuStatus.LIVE)
                 .build();
     }
 
@@ -61,5 +62,11 @@ public class Menus extends BaseEntity {
 
         this.menuName = requestDto.getMenuName();
         this.price = requestDto.getPrice();
+    }
+
+    public void validateDelete() {
+        if (menuStatus == MenuStatus.INACTIVE) {
+            throw new GlobalException(ErrorCode.DELETED_MENU);
+        }
     }
 }
