@@ -1,7 +1,5 @@
 package com.delivery.igo.igo_delivery.api.review.service;
 
-import com.delivery.igo.igo_delivery.api.menu.dto.request.MenuRequestDto;
-import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.entity.MenuStatus;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
@@ -20,8 +18,6 @@ import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,14 +25,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)

@@ -72,7 +72,7 @@ class UserServiceImplIntegrationTest {
         assertEquals(requestDto.getNickname(), userResponseDto.getNickname());
         assertEquals(requestDto.getPhoneNumber(), userResponseDto.getPhoneNumber());
         assertEquals(requestDto.getAddress(), userResponseDto.getAddress());
-        assertEquals(requestDto.getRole().toString(), userResponseDto.getRole().toString());
+        assertEquals(requestDto.getRole().toString(), userResponseDto.getRole());
 
     }
 
