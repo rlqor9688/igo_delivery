@@ -14,5 +14,5 @@ public interface StoreService {
     StoreResponseDto createStore(StoreRequestDto requestDto, Long userId);
 
     // 매장 전체 조회
-    Page<StoreListResponseDto> getStores(String name, Pageable pageable);
+    Page<StoreListResponseDto> getStores(String storeName, Pageable pageable);
 }

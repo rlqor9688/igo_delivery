@@ -39,17 +39,22 @@ public class StoreServiceImpl implements StoreService{
             throw new GlobalException(ErrorCode.MAX_STORE_LIMIT);
         }
 
-        // DTO -> 엔티티 변환 후 저장
+        // DTO -> entity 변환 후 저장
         Stores store = storeRepository.save(requestDto.toEntity(owner));
 
-        // 저장된 엔티티를 DTO로 변환하여 반환
+        // 저장된 entity를 DTO로 변환하여 반환
         return StoreResponseDto.from(store);
     }
 
     // 매장 전체 조회
     @Override
-    public Page<StoreListResponseDto> getStores(String name, Pageable pageable) {
-        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(name, pageable);
+    public Page<StoreListResponseDto> getStores(String storeName, Pageable pageable) {
+
+        // storeName이 빈 문자열일 때 모든 매장을 조회
+        // storeName이 비어있지 않으면 해당 이름을 포함하는 매장만 조회
+        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(storeName, pageable);
+
+        // 조회된 매장들을 StoreListResponseDto로 변환하여 반환
         return stores.map(StoreListResponseDto::from);
     }
 }

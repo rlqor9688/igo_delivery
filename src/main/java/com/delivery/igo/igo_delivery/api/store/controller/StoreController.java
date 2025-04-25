@@ -35,9 +35,10 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // 매장 전체 조회
     @GetMapping
     public ResponseEntity<Map<String, Object>> getStores(
-            @RequestParam(defaultValue = "") String storeName,
+            @RequestParam(name = "storeName", defaultValue = "") String storeName,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<StoreListResponseDto> storePage = storeService.getStores(storeName, pageable);
