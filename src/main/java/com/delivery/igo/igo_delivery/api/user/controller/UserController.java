@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> modifyMyInfo(@PathVariable Long id,
+    public ResponseEntity<UserResponseDto> updateMyInfo(@PathVariable Long id,
                                                         @Auth AuthUser authUser,
                                                         @Valid @RequestBody UpdateUserRequestDto requestDto) {
 
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> modifyMyPassword(@PathVariable Long id,
+    public ResponseEntity<Void> updateMyPassword(@PathVariable Long id,
                                                @Auth AuthUser authUser,
                                                @Valid @RequestBody UpdatePasswordRequestDto requestDto) {
 
