@@ -12,6 +12,6 @@ public class MenuRequestDto {
     @NotBlank(message = "{menu.menuName.notblank}")
     private final String menuName;
 
-    @NotNull(message = "{menu.price.notblank}")
+    @NotNull(message = "{menu.price.notnull}")
     private final Long price;
 }
