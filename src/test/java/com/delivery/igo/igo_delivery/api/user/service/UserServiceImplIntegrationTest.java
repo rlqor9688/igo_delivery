@@ -1,6 +1,7 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
 import com.delivery.igo.igo_delivery.IgoDeliveryApplication;
+import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.resonse.UserResponseDto;
@@ -19,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = IgoDeliveryApplication.class)
 @Transactional
@@ -70,7 +72,7 @@ class UserServiceImplIntegrationTest {
         assertEquals(requestDto.getNickname(), userResponseDto.getNickname());
         assertEquals(requestDto.getPhoneNumber(), userResponseDto.getPhoneNumber());
         assertEquals(requestDto.getAddress(), userResponseDto.getAddress());
-        assertEquals(requestDto.getRole().toString(), userResponseDto.getRole().toString());
+        assertEquals(requestDto.getRole().toString(), userResponseDto.getRole());
 
     }
 
@@ -99,9 +101,32 @@ class UserServiceImplIntegrationTest {
                 () -> userService.updateUserPasswordById(user.getId(), otherAuthUser, requestDto)); // 인증 유저와 비밀번호 변경 유저가 다름
         Users findUsers = userRepository.findById(user.getId()).get();
 
-        // then - 비밀번호 변경 안됨
         assertTrue(passwordEncoder.matches(requestDto.getOldPassword(), findUsers.getPassword()));  // 기존 비밀번호로 검증이 되어야함
         assertFalse(passwordEncoder.matches(requestDto.getNewPassword(), findUsers.getPassword())); // 바꾸려하는 비밀번호로 검증이 안됨
 
+    }
+
+    @Test
+    void 비밀번호_수정이_정상적으로_성공() {
+        // given
+        DeleteUserRequestDto requestDto = new DeleteUserRequestDto("oldPassword123!@#");
+
+        // when
+        userService.deleteUser(user.getId(), authUser, requestDto);
+
+        // then
+        assertEquals(UserStatus.INACTIVE, user.getUserStatus());
+    }
+
+    @Test
+    void 비밀번호_수정이_실패하면_트랜잭션롤백() {
+        // given
+        DeleteUserRequestDto requestDto = new DeleteUserRequestDto("oldPassword123!@#");
+        AuthUser otherAuthUser = new AuthUser(999L, "other@naver.com", "다른유저", UserRole.OWNER);
+
+        // when & then
+        assertThrows(GlobalException.class, () -> userService.deleteUser(user.getId(), otherAuthUser, requestDto));
+        assertEquals(UserStatus.LIVE, user.getUserStatus());
+        assertNotEquals(UserStatus.INACTIVE, user.getUserStatus());
     }
 }
