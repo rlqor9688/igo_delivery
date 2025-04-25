@@ -2,7 +2,6 @@ package com.delivery.igo.igo_delivery.api.review.service;
 
 import com.delivery.igo.igo_delivery.api.menu.entity.MenuStatus;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
-import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
 import com.delivery.igo.igo_delivery.api.order.entity.OrderItems;
 import com.delivery.igo.igo_delivery.api.order.entity.OrderStatus;
 import com.delivery.igo.igo_delivery.api.order.entity.Orders;
