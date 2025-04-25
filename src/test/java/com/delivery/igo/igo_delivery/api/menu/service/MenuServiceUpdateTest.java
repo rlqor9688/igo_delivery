@@ -2,7 +2,6 @@ package com.delivery.igo.igo_delivery.api.menu.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -11,11 +10,11 @@ import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
+import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
-import com.delivery.igo.igo_delivery.common.validation.StoreValidator;
-import com.delivery.igo.igo_delivery.common.validation.UserValidator;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,10 +30,10 @@ public class MenuServiceUpdateTest {
     private MenuRepository menuRepository;
 
     @Mock
-    private UserValidator userValidator;
+    private UserRepository userRepository;
 
     @Mock
-    private StoreValidator storeValidator;
+    private StoreRepository storeRepository;
 
     @InjectMocks
     private MenuServiceImpl menuService;
@@ -76,16 +75,17 @@ public class MenuServiceUpdateTest {
                 .price(500L)
                 .build();
 
-        given(userValidator.validateOwner(authUser.getId())).willReturn(user);
-        given(storeValidator.validateStoreOwner(store.getId(), user)).willReturn(store);
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+        given(storeRepository.findById(store.getId())).willReturn(Optional.of(store));
         given(menuRepository.findById(menu.getId())).willReturn(Optional.of(menu));
 
         MenuResponseDto responseDto = menuService.updateMenu(authUser, storesId, menuId, requestDto);
 
         assertNotNull(responseDto);
 
-        verify(userValidator).validateOwner(authUser.getId());
-        verify(storeValidator).validateStoreOwner(storesId, user);
+        verify(userRepository).findById(authUser.getId());
+        verify(storeRepository).findById(storesId);
+        verify(menuRepository).findById(menuId);
 
         assertEquals("수정된 메뉴", menu.getMenuName());
         assertEquals(1000L, menu.getPrice());

@@ -5,12 +5,12 @@ import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
+import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
-import com.delivery.igo.igo_delivery.common.validation.StoreValidator;
-import com.delivery.igo.igo_delivery.common.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,18 +21,22 @@ public class MenuServiceImpl implements MenuService {
 
     private final MenuRepository menuRepository;
 
-    private final UserValidator userValidator;
+    private final UserRepository userRepository;
 
-    private final StoreValidator storeValidator;
+    private final StoreRepository storeRepository;
 
     @Override
     @Transactional
     public MenuResponseDto createMenu(AuthUser authUser, Long storesId, MenuRequestDto requestDto) {
 
-        Users user = userValidator.validateOwner(authUser.getId());
-//        user.validateDelete();
+        Users user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        user.validateDelete();
+        user.validateOwner();
 
-        Stores store = storeValidator.validateStoreOwner(storesId, user);
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+//        store.validateOwner();
 
         Menus menu = Menus.of(store, requestDto);
         Menus savedMenu = menuRepository.save(menu);
@@ -44,10 +48,14 @@ public class MenuServiceImpl implements MenuService {
     @Transactional
     public MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto) {
 
-        Users user = userValidator.validateOwner(authUser.getId());
-//        user.validateDelete();
+        Users user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        user.validateDelete();
+        user.validateOwner();
 
-        Stores store = storeValidator.validateStoreOwner(storesId, user);
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+//        store.validateOwner();
 
         Menus menu = menuRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
         menu.updateMenu(requestDto);

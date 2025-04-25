@@ -4,7 +4,6 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -15,13 +14,14 @@ import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
+import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
-import com.delivery.igo.igo_delivery.common.validation.StoreValidator;
-import com.delivery.igo.igo_delivery.common.validation.UserValidator;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,10 +36,10 @@ class MenuServiceCreateTest {
     private MenuRepository menuRepository;
 
     @Mock
-    private UserValidator userValidator;
+    private UserRepository userRepository;
 
     @Mock
-    private StoreValidator storeValidator;
+    private StoreRepository storeRepository;
 
     @InjectMocks
     private MenuServiceImpl menuService;
@@ -75,17 +75,20 @@ class MenuServiceCreateTest {
         Menus menu = Menus.of(store, requestDto);
         Long storeId = 1L;
 
-        given(userValidator.validateOwner(authUser.getId())).willReturn(user);
-        given(storeValidator.validateStoreOwner(anyLong(), eq(user))).willReturn(store);
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
         given(menuRepository.save(any())).willReturn(menu);
 
         MenuResponseDto responseDto = menuService.createMenu(authUser, storeId, requestDto);
 
         assertNotNull(responseDto);
 
-        verify(userValidator).validateOwner(authUser.getId());
-        verify(storeValidator).validateStoreOwner(storeId, user);
+        verify(userRepository).findById(authUser.getId());
+        verify(storeRepository).findById(storeId);
         verify(menuRepository).save(any(Menus.class));
+
+        assertEquals("메뉴 이름", menu.getMenuName());
+        assertEquals(1000L, menu.getPrice());
     }
 
     @Test
@@ -104,8 +107,8 @@ class MenuServiceCreateTest {
         Menus menu = Menus.of(store, requestDto);
         Long storeId = 1L;
 
-        given(userValidator.validateOwner(otherAuthUser.getId())).willReturn(otherUser);
-        given(storeValidator.validateStoreOwner(anyLong(), eq(otherUser))).willThrow(new GlobalException(ErrorCode.STORE_OWNER_MISMATCH));
+        given(userRepository.findById(otherAuthUser.getId())).willReturn(Optional.of(otherUser));
+        given(storeRepository.findById(storeId)).willThrow(new GlobalException(ErrorCode.STORE_OWNER_MISMATCH));
 
         GlobalException exception = assertThrows(GlobalException.class, () -> {
             menuService.createMenu(otherAuthUser, storeId, requestDto);
@@ -113,8 +116,8 @@ class MenuServiceCreateTest {
 
         assertEquals("해당 가게의 사장님만 접근할 수 있습니다.", exception.getMessage());
 
-        verify(userValidator).validateOwner(otherAuthUser.getId());
-        verify(storeValidator).validateStoreOwner(storeId, otherUser);
+        verify(userRepository).findById(otherAuthUser.getId());
+        verify(storeRepository).findById(storeId);
         verify(menuRepository, never()).save(any(Menus.class));
     }
 
@@ -134,7 +137,7 @@ class MenuServiceCreateTest {
         Menus menu = Menus.of(store, requestDto);
         Long storeId = 1L;
 
-        given(userValidator.validateOwner(otherAuthUser.getId())).willThrow(new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN));
+        given(userRepository.findById(otherAuthUser.getId())).willThrow(new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN));
 
         GlobalException exception = assertThrows(GlobalException.class, () -> {
             menuService.createMenu(otherAuthUser, storeId, requestDto);
@@ -142,7 +145,7 @@ class MenuServiceCreateTest {
 
         assertEquals("매장 사장님이 아닙니다.", exception.getMessage());
 
-        verify(userValidator).validateOwner(otherAuthUser.getId());
-        verify(storeValidator, never()).validateStoreOwner(storeId, otherUser);
+        verify(userRepository).findById(otherAuthUser.getId());
+        verify(storeRepository, never()).findById(storeId);
     }
 }
