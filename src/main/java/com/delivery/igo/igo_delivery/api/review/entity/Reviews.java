@@ -1,7 +1,7 @@
 package com.delivery.igo.igo_delivery.api.review.entity;
 
-import com.delivery.igo.igo_delivery.api.order.entity.OrderStatus;
 import com.delivery.igo.igo_delivery.api.order.entity.Orders;
+import com.delivery.igo.igo_delivery.api.review.dto.ReviewRequestDto;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
@@ -54,5 +54,17 @@ public class Reviews extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        this.reviewStatus = ReviewStatus.DELETED;
+    }
+
+    public static Reviews of(Users user, Orders order, Stores store, ReviewRequestDto requestDto) {
+
+        return Reviews.builder()
+                .users(user)
+                .orders(order)
+                .stores(store)
+                .content(requestDto.getContent())
+                .rating(requestDto.getRating())
+                .build();
     }
 }

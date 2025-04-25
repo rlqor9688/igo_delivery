@@ -1,5 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.controller;
 
+import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.resonse.UserResponseDto;
 import com.delivery.igo.igo_delivery.api.user.service.UserService;
@@ -33,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> modifyMyInfo(@PathVariable Long id,
+    public ResponseEntity<UserResponseDto> updateMyInfo(@PathVariable Long id,
                                                         @Auth AuthUser authUser,
                                                         @Valid @RequestBody UpdateUserRequestDto requestDto) {
 
@@ -41,4 +42,15 @@ public class UserController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateMyPassword(@PathVariable Long id,
+                                               @Auth AuthUser authUser,
+                                               @Valid @RequestBody UpdatePasswordRequestDto requestDto) {
+
+        userService.updateUserPasswordById(id, authUser, requestDto);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
+
 }
