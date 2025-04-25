@@ -38,6 +38,14 @@ public enum ErrorCode {
 
     // Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+    COMPLETE_ORDER(HttpStatus.BAD_REQUEST,"이미 완료된 주문입니다."),
+    CANCELLED_ORDER(HttpStatus.BAD_REQUEST,"이미 취소된 주문입니다."),
+    REFUSED_ORDER(HttpStatus.BAD_REQUEST,"이미 거부된 주문입니다."),
+    INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST,"존재하지 않는 주문 상태입니다."),
+    OUT_OF_OPEN_TIME(HttpStatus.FORBIDDEN, "영업시간이 아닙니다."),
+    UNDER_MIN_ORDER_PRICE(HttpStatus.BAD_REQUEST, "최소 주문 금액보다 낮습니다."),
+    CONSUMER_CANNOT_CHANGE_STATUS(HttpStatus.FORBIDDEN, "고객은 주문 취소 외에는 상태를 변경할 수 없습니다."),
+    OWNER_CANNOT_CANCEL_ORDER(HttpStatus.FORBIDDEN, "매장 주인은 주문을 취소할 수 없습니다."),
 
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
