@@ -1,6 +1,7 @@
 package com.delivery.igo.igo_delivery.api.menu.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,6 +12,6 @@ public class MenuRequestDto {
     @NotBlank(message = "{menu.menuName.notblank}")
     private final String menuName;
 
-    @NotBlank(message = "{menu.price.notblank}")
+    @NotNull(message = "{menu.price.notnull}")
     private final Long price;
 }

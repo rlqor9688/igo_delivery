@@ -6,14 +6,11 @@ import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
-import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
-import com.delivery.igo.igo_delivery.common.exception.AuthException;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,23 +30,38 @@ public class MenuServiceImpl implements MenuService {
     public MenuResponseDto createMenu(AuthUser authUser, Long storesId, MenuRequestDto requestDto) {
 
         Users user = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.getUserRole() != UserRole.OWNER) {
-
-            throw new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN);
-        }
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        user.validateDelete();
+        user.validateOwner();
 
         Stores store = storeRepository.findById(storesId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
-
-        if (!Objects.equals(user.getId(), store.getUsers().getId())) {
-            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
-        }
+        store.validateOwner(user);
 
         Menus menu = Menus.of(store, requestDto);
         Menus savedMenu = menuRepository.save(menu);
 
-        return MenuResponseDto.of(savedMenu);
+        return MenuResponseDto.from(savedMenu);
+    }
+
+    @Override
+    @Transactional
+    public MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto) {
+
+        Users user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        user.validateDelete();
+        user.validateOwner();
+
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+        store.validateOwner(user);
+
+        Menus menu = menuRepository.findByIdAndStoresId(id, storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
+        menu.validateDelete();
+        menu.updateMenu(requestDto);
+
+        return MenuResponseDto.from(menu);
     }
 }
