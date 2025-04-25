@@ -1,6 +1,7 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
-import com.delivery.igo.igo_delivery.api.user.dto.resonse.FindUserResponseDto;
+import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
+import com.delivery.igo.igo_delivery.api.user.dto.resonse.UserResponseDto;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
@@ -46,7 +47,7 @@ class UserServiceImplUnitTest {
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
 
         // when
-        FindUserResponseDto findUserDto = userService.findUserById(1L, authUser);
+        UserResponseDto findUserDto = userService.findUserById(1L, authUser);
 
         // then
         assertEquals(user.getId(), findUserDto.getId());
@@ -56,10 +57,9 @@ class UserServiceImplUnitTest {
     }
 
     @Test
-    void 내정보가_없으면_예외_발생_에러코드_USER_NOT_FOUND() {
+    void 내정보_조회시_내정보가_없으면_예외_발생_에러코드_USER_NOT_FOUND() {
         // given
         AuthUser authUser = new AuthUser(1L, "email@naver.com", "로그인유저", UserRole.OWNER);
-        given(userRepository.findById(authUser.getId())).willReturn(Optional.empty());
 
         // when & then
         GlobalException exception = assertThrows(GlobalException.class, () -> userService.findUserById(1L, authUser));
@@ -67,5 +67,36 @@ class UserServiceImplUnitTest {
         verify(userRepository).findById(authUser.getId());
 
     }
+
+    @Test
+    void 내정보_수정시_변경할_닉네임이_이미있다면_에러_발생_에러코드_USER_EXIST_NICKNAME() {
+        // given
+        Users user = Users.builder()
+                .id(1L)
+                .email("email@naver.com")
+                .nickname("정상유저")
+                .phoneNumber("010-1111-2222")
+                .address("세상에없는구")
+                .userRole(UserRole.OWNER)
+                .userStatus(UserStatus.LIVE)
+                .build();
+
+        AuthUser authUser = new AuthUser(1L, "email@naver.com", "정상유저", UserRole.OWNER);
+        UpdateUserRequestDto requestDto = new UpdateUserRequestDto("수정할게요",
+                "010-1111-1111",
+                "주소",
+                UserRole.CONSUMER);
+
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+        given(userRepository.existsByNickname(requestDto.getNickname())).willReturn(true);
+
+        // when & then
+        GlobalException exception = assertThrows(GlobalException.class,
+                () -> userService.updateUserById(1L, authUser, requestDto));
+        assertEquals(ErrorCode.USER_EXIST_NICKNAME, exception.getErrorCode());
+        verify(userRepository).findById(authUser.getId());
+        verify(userRepository).existsByNickname(requestDto.getNickname());
+    }
+
 }
 

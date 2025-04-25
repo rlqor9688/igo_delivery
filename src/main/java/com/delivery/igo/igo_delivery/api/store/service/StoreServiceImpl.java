@@ -1,0 +1,45 @@
+package com.delivery.igo.igo_delivery.api.store.service;
+
+import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
+import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
+import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
+import com.delivery.igo.igo_delivery.api.store.entity.Stores;
+import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
+import com.delivery.igo.igo_delivery.api.user.entity.Users;
+import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class StoreServiceImpl implements StoreService{
+
+    private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
+
+    // 매장 생성
+    @Transactional
+    @Override
+    public StoreResponseDto createStore(StoreRequestDto requestDto, Long userId) {
+        Users owner = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+        // 사장님 권한이 아닌 경우 예외 발생
+        owner.validateOwner();
+
+        // 사장이 이미 3개의 매장을 등록한 경우 예외 발생
+        long count = storeRepository.countByUsersAndStoreStatusIsNot(owner, StoreStatus.CLOSED);
+        if (count >= 3) {
+            throw new GlobalException(ErrorCode.MAX_STORE_LIMIT);
+        }
+
+        // DTO -> 엔티티 변환 후 저장
+        Stores store = storeRepository.save(requestDto.toEntity(owner));
+
+        // 저장된 엔티티를 DTO로 변환하여 반환
+        return StoreResponseDto.from(store);
+    }
+}
