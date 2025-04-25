@@ -29,14 +29,9 @@ public class MenuServiceImpl implements MenuService {
     @Transactional
     public MenuResponseDto createMenu(AuthUser authUser, Long storesId, MenuRequestDto requestDto) {
 
-        Users user = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-        user.validateDelete();
-        user.validateOwner();
+        Users user = getUserWithAccessCheck(authUser.getId());
 
-        Stores store = storeRepository.findById(storesId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
-        store.validateOwner(user);
+        Stores store = getStoreWithAccessCheck(storesId, user);
 
         Menus menu = Menus.of(store, requestDto.getMenuName(), requestDto.getPrice());
         Menus savedMenu = menuRepository.save(menu);
@@ -48,20 +43,41 @@ public class MenuServiceImpl implements MenuService {
     @Transactional
     public MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto) {
 
-        Users user = userRepository.findById(authUser.getId())
+        Users user = getUserWithAccessCheck(authUser.getId());
+
+        Stores store = getStoreWithAccessCheck(storesId, user);
+
+        Menus menu = getMenuWithAccessCheck(id, storesId);
+        menu.updateMenu(requestDto.getMenuName(), requestDto.getPrice());
+
+        return MenuResponseDto.from(menu);
+    }
+
+    private Users getUserWithAccessCheck(Long id) {
+
+        Users user = userRepository.findById(id)
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
         user.validateDelete();
         user.validateOwner();
 
-        Stores store = storeRepository.findById(storesId)
+        return user;
+    }
+
+    private Stores getStoreWithAccessCheck(Long id, Users user) {
+
+        Stores store = storeRepository.findById(id)
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
         store.validateOwner(user);
 
-        Menus menu = menuRepository.findByIdAndStoresId(id, storesId)
+        return store;
+    }
+
+    private Menus getMenuWithAccessCheck(Long menuId, Long storeId) {
+
+        Menus menu = menuRepository.findByIdAndStoresId(menuId, storeId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.MENU_NOT_FOUND));
         menu.validateDelete();
-        menu.updateMenu(requestDto.getMenuName(), requestDto.getPrice());
 
-        return MenuResponseDto.from(menu);
+        return menu;
     }
 }
