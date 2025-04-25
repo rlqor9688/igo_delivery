@@ -41,7 +41,7 @@ public class MenuServiceImpl implements MenuService {
         Menus menu = Menus.of(store, requestDto);
         Menus savedMenu = menuRepository.save(menu);
 
-        return MenuResponseDto.of(savedMenu);
+        return MenuResponseDto.from(savedMenu);
     }
 
     @Override
@@ -62,6 +62,6 @@ public class MenuServiceImpl implements MenuService {
         menu.validateDelete();
         menu.updateMenu(requestDto);
 
-        return MenuResponseDto.of(menu);
+        return MenuResponseDto.from(menu);
     }
 }
