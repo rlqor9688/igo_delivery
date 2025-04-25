@@ -71,7 +71,7 @@ class MenuServiceCreateTest {
     void menus_메뉴_생성에_성공한다() {
 
         MenuRequestDto requestDto = new MenuRequestDto("메뉴 이름", 1000L);
-        Menus menu = Menus.of(store, requestDto);
+        Menus menu = Menus.of(store, requestDto.getMenuName(), requestDto.getPrice());
         Long storeId = 1L;
 
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
@@ -103,7 +103,7 @@ class MenuServiceCreateTest {
                 .build();
 
         MenuRequestDto requestDto = new MenuRequestDto("메뉴 이름", 1000L);
-        Menus menu = Menus.of(store, requestDto);
+        Menus menu = Menus.of(store, requestDto.getMenuName(), requestDto.getPrice());
         Long storeId = 1L;
 
         given(userRepository.findById(otherAuthUser.getId())).willReturn(Optional.of(otherUser));
@@ -133,7 +133,7 @@ class MenuServiceCreateTest {
                 .build();
 
         MenuRequestDto requestDto = new MenuRequestDto("메뉴 이름", 1000L);
-        Menus menu = Menus.of(store, requestDto);
+        Menus menu = Menus.of(store, requestDto.getMenuName(), requestDto.getPrice());
         Long storeId = 1L;
 
         given(userRepository.findById(otherAuthUser.getId())).willThrow(new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN));
