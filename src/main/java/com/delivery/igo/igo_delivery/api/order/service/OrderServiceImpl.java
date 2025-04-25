@@ -67,9 +67,7 @@ public class OrderServiceImpl implements OrderService{
         }
 
         // 주문 총 가격이 가게의 최소 주문 금액보다 작을 경우 에러 출력
-        long sumPrice = cartItems.stream()
-                .mapToLong(cartItem -> cartItem.getCartPrice() * cartItem.getCartQuantity().longValue())
-                .sum();
+        long sumPrice = cartItems.stream().mapToLong(CartItems::totalPrice).sum();
         if(sumPrice < stores.getMinOrderPrice()){
             throw new GlobalException(ErrorCode.UNDER_MIN_ORDER_PRICE);
         }
@@ -127,6 +125,35 @@ public class OrderServiceImpl implements OrderService{
             return ChangeOrderStatusResponse.from(orders);
         }
         throw new GlobalException(ErrorCode.INVALID_USER_ROLE);
+    }
+
+    // 주문 단건 조회
+    @Override
+    public OrderResponse findOrder(AuthUser authUser, Long ordersId) {
+
+        // 주문 정보, 주문 메뉴 목록, 주문 유저의 정보를 호출
+        Orders orders = orderRepository.findById(ordersId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
+        Users users = orders.getUsers();
+        if (users == null) {
+            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+        }
+        List<OrderItems> orderItems = orderItemsRepository.findByOrdersId(ordersId);
+        if(orderItems.isEmpty()){
+            throw new GlobalException(ErrorCode.ORDER_NOT_FOUND);
+        }
+
+        // 해당 유저가 주문한 유저이거나 매장 주인인지 확인 -> 둘다 아닐시 에러
+        boolean isOrderUser = authUser.getId().equals(users.getId());
+        boolean isStoreOwner = orderItems.stream()
+                .map(item -> item.getMenus().getStores().getUsers().getId())
+                .distinct()
+                .allMatch(ownerId -> ownerId.equals(users.getId()));
+
+        if (!(isOrderUser || isStoreOwner)) {
+            throw new GlobalException(ErrorCode.FORBIDDEN);
+        }
+        return OrderResponse.from(orders,orderItems);
     }
 
 
