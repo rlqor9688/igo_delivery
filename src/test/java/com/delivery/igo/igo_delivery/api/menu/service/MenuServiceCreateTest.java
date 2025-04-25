@@ -18,6 +18,7 @@ import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class MenuServiceImplTest {
+class MenuServiceCreateTest {
 
     @Mock
     private MenuRepository menuRepository;
@@ -84,6 +85,9 @@ class MenuServiceImplTest {
         verify(userRepository).findById(authUser.getId());
         verify(storeRepository).findById(storeId);
         verify(menuRepository).save(any(Menus.class));
+
+        assertEquals("메뉴 이름", menu.getMenuName());
+        assertEquals(1000L, menu.getPrice());
     }
 
     @Test
@@ -103,13 +107,13 @@ class MenuServiceImplTest {
         Long storeId = 1L;
 
         given(userRepository.findById(otherAuthUser.getId())).willReturn(Optional.of(otherUser));
-        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+        given(storeRepository.findById(storeId)).willThrow(new GlobalException(ErrorCode.STORE_OWNER_MISMATCH));
 
         GlobalException exception = assertThrows(GlobalException.class, () -> {
             menuService.createMenu(otherAuthUser, storeId, requestDto);
         });
 
-        assertEquals("해당 가게의 사장님만 접근할 수 있습니다.", exception.getMessage());
+        assertEquals(ErrorCode.STORE_OWNER_MISMATCH, exception.getErrorCode());
 
         verify(userRepository).findById(otherAuthUser.getId());
         verify(storeRepository).findById(storeId);
@@ -132,13 +136,13 @@ class MenuServiceImplTest {
         Menus menu = Menus.of(store, requestDto);
         Long storeId = 1L;
 
-        given(userRepository.findById(otherAuthUser.getId())).willReturn(Optional.of(otherUser));
+        given(userRepository.findById(otherAuthUser.getId())).willThrow(new GlobalException(ErrorCode.ROLE_OWNER_FORBIDDEN));
 
         GlobalException exception = assertThrows(GlobalException.class, () -> {
             menuService.createMenu(otherAuthUser, storeId, requestDto);
         });
 
-        assertEquals("매장 사장님이 아닙니다.", exception.getMessage());
+        assertEquals(ErrorCode.ROLE_OWNER_FORBIDDEN, exception.getErrorCode());
 
         verify(userRepository).findById(otherAuthUser.getId());
         verify(storeRepository, never()).findById(storeId);

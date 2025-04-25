@@ -7,4 +7,6 @@ import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 public interface MenuService {
 
     MenuResponseDto createMenu(AuthUser authUser, Long storesId, MenuRequestDto requestDto);
+
+    MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto);
 }

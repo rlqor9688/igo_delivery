@@ -10,7 +10,7 @@ public class MenuResponseDto {
 
     private final Long id;
 
-    public static MenuResponseDto of(Menus menus) {
+    public static MenuResponseDto from(Menus menus) {
 
         return new MenuResponseDto(menus.getId());
     }
