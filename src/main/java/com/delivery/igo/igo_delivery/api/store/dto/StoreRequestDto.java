@@ -1,10 +1,14 @@
 package com.delivery.igo.igo_delivery.api.store.dto;
 
+import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
+import com.delivery.igo.igo_delivery.api.store.entity.Stores;
+import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.sql.Time;
 import java.time.LocalTime;
 
 @Getter
@@ -34,4 +38,20 @@ public class StoreRequestDto {
     @NotNull(message = "{store.minOrderPrice.notnull}")
     @Min(value = 1000, message = "{store.minOrderPrice.min}")
     private Integer minOrderPrice;      // 최소 주문 금액
+
+    // 매장 생성 요청 DTO를 엔티티로 변환
+    public Stores toEntity(Users owner) {
+        return Stores.builder()
+                .storeName(this.storeName)
+                .storeAddress(this.storeAddress)
+                .storePhoneNumber(this.storePhoneNumber)
+                .openTime(Time.valueOf(this.openTime))
+                .endTime(Time.valueOf(this.endTime))
+                .minOrderPrice(this.minOrderPrice)
+                .storeStatus(StoreStatus.LIVE)
+                .users(owner)
+                .reviewCount(0)
+                .avgRating(0.0)
+                .build();
+    }
 }

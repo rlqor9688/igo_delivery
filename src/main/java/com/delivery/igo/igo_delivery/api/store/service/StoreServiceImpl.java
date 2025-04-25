@@ -1,6 +1,5 @@
 package com.delivery.igo.igo_delivery.api.store.service;
 
-import com.delivery.igo.igo_delivery.api.store.converter.StoreConverter;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
@@ -38,9 +37,9 @@ public class StoreServiceImpl implements StoreService{
         }
 
         // DTO -> 엔티티 변환 후 저장
-        Stores store = storeRepository.save(StoreConverter.toEntity(requestDto, owner));
+        Stores store = storeRepository.save(requestDto.toEntity(owner));
 
         // 저장된 엔티티를 DTO로 변환하여 반환
-        return StoreConverter.toDto(store);
+        return StoreResponseDto.from(store);
     }
 }
