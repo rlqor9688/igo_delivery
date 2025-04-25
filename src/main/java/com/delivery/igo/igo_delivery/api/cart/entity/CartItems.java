@@ -45,4 +45,8 @@ public class CartItems {
     public void addQuantity(Integer cartQuantity){
         this.cartQuantity += cartQuantity;
     }
+
+    public long totalPrice() {
+        return cartPrice * cartQuantity.longValue();
+    }
 }

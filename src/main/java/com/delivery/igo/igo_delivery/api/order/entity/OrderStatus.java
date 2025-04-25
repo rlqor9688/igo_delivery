@@ -5,7 +5,6 @@ import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
 import java.util.Arrays;
 
 @Getter
@@ -20,12 +19,22 @@ public enum OrderStatus {
 
     private final String orderStatus;
 
-    //todo : 관련 에러 코드 추가
     public static OrderStatus of(String orderStatus) {
         return Arrays.stream(OrderStatus.values())
                 .filter(status -> status.name().equalsIgnoreCase(orderStatus))
                 .findFirst()
-                .orElseThrow(() -> new GlobalException(ErrorCode.FORBIDDEN));
+                .orElseThrow(() -> new GlobalException(ErrorCode.INVALID_ORDER_STATUS));
     }
 
+    // 주문 상태 변경 관련 로직 -> true 리턴시 orders의 주문 상태 변경
+    public boolean canChangeStatus(OrderStatus orderStatus){
+        return switch (this) {
+            case WAITING -> orderStatus == COOKING || orderStatus == CANCELLED || orderStatus == REFUSED;
+            case COOKING -> orderStatus == IN_DELIVERY || orderStatus == CANCELLED || orderStatus == REFUSED;
+            case IN_DELIVERY -> orderStatus == COMPLETE || orderStatus == CANCELLED || orderStatus == REFUSED;
+            case COMPLETE -> throw new GlobalException(ErrorCode.COMPLETE_ORDER);
+            case CANCELLED -> throw new GlobalException(ErrorCode.CANCELLED_ORDER);
+            default -> throw new GlobalException(ErrorCode.REFUSED_ORDER);
+        };
+    }
 }
