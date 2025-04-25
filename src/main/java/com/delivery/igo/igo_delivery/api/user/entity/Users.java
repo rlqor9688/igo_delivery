@@ -54,7 +54,7 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
-    // 내 정보 수정
+    // 내 정보 수정 -> 멀티 모듈 프로젝트?일때 문제 발생가능성
     public void updateBy(UpdateUserRequestDto requestDto) {
         this.nickname = requestDto.getNickname();
         this.phoneNumber = requestDto.getPhoneNumber();
