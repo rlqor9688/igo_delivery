@@ -1,6 +1,7 @@
 package com.delivery.igo.igo_delivery.api.user.entity;
 
 import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
+import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
@@ -54,6 +55,7 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
+    // 내 정보 수정
     public void updateBy(UpdateUserRequestDto requestDto) {
         if (requestDto.getNickname() != null) {
             this.nickname = requestDto.getNickname();
@@ -67,6 +69,11 @@ public class Users extends BaseEntity {
         if (requestDto.getRole() != null) {
             this.userRole = requestDto.getRole();
         }
+    }
+
+    // 비밀번호 수정
+    public void updatePassword(String newPassword) {
+        password = newPassword;
     }
 
     // 삭제
