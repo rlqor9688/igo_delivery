@@ -26,10 +26,7 @@ public class OrderController {
             @Auth AuthUser authUser,
             @Valid @RequestBody CreateOrderRequest request
     ) {
-        // 로그인한 유저의 userRole 확인
-        if (authUser.getUserRole() != UserRole.CONSUMER) {
-            throw new GlobalException(ErrorCode.ROLE_CONSUMER_FORBIDDEN);
-        }
+
         return new ResponseEntity<>(orderService.createOrder(authUser,request),HttpStatus.CREATED);
     }
 
