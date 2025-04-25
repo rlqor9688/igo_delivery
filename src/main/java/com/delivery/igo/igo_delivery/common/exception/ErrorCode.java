@@ -37,9 +37,8 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
 
     // User
-    DUPLICATED_USERNAME(HttpStatus.BAD_REQUEST, "사용자 이름이 중복되었습니다. 다른 이름으로 가입해 주세요."),
-    DUPLICATED_USER(HttpStatus.BAD_REQUEST, "사용자 이름이나 email이 이미 등록되어있습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    DELETED_USER(HttpStatus.NOT_FOUND, "삭제된 사용자 입니다."),
     USER_NOT_FOUND_ROLE(HttpStatus.NOT_FOUND, "권한 정보가 없습니다."),
     INVALID_USER_ROLE(HttpStatus.FORBIDDEN, "유효하지 않은 사용자 권한입니다."),
     ROLE_ADMIN_FORBIDDEN(HttpStatus.UNAUTHORIZED, "관리자 권한이 없습니다."),
