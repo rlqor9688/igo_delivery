@@ -1,8 +1,9 @@
 package com.delivery.igo.igo_delivery.api.store.entity;
 
-import com.delivery.igo.igo_delivery.api.order.entity.Orders;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
@@ -54,9 +56,19 @@ public class Stores extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StoreStatus storeStatus;
 
-    // ToDo 리뷰수 별점 평균 - 동시성 제어 시 작성하기
+    @Column(nullable = false)
+    private Integer reviewCount = 0; // 리뷰 수 (초기값 0)
+
+    @Column(nullable = false)
+    private Double avgRating = 0.0; // 평균 별점 (초기값 0.0)
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void validateOwner(Users user) {
+        if (!Objects.equals(this.getUsers().getId(), user.getId())) {
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
     }
 }
