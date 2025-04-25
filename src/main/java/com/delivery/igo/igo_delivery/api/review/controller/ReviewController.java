@@ -26,7 +26,7 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.createReview(authUser, requestDto), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{reviewId}")
+    @PatchMapping("/{reviewId}")
     public ResponseEntity<Void> updateReview(
             @PathVariable Long reviewId,
             @Auth AuthUser authUser,
