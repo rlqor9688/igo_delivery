@@ -21,7 +21,7 @@ public class ReviewRequestDto {
     @NotBlank(message = "{review.content.notblank}")
     private String content;
 
-    @NotBlank(message = "{review.rating.notblank}")
+    @NotNull(message = "{review.rating.notnull}")
     @Range(min = 1, max = 5, message = "{review.rating.outofband}")
     private Integer rating;
 }
