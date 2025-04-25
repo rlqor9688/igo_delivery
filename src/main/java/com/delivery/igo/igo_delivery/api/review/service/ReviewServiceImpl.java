@@ -11,11 +11,9 @@ import com.delivery.igo.igo_delivery.api.review.entity.Reviews;
 import com.delivery.igo.igo_delivery.api.review.repository.ReviewRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
-import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
-import com.delivery.igo.igo_delivery.common.exception.AuthException;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import lombok.AllArgsConstructor;
@@ -49,28 +47,27 @@ public class ReviewServiceImpl implements ReviewService {
             throw new GlobalException(ErrorCode.USER_NOT_FOUND);
         }
 
-        // DB에서 유저 조회
+        // DB에서 유저, 주문, 매장 조회
         Users findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
-        // 유효한 유저인지 검증(UserStatus= LIVE, UserRole = CCONSUMER)
-        findUser.validateDelete();
-        findUser.validateConsumer();
-
-        // 주문, 가게 정보 DB에서 찾기
         Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
 
         Stores findStore = storeRepository.findById(requestDto.getStoresId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
 
+        // 유효한 유저인지 검증(UserStatus= LIVE, UserRole = CCONSUMER)
+        findUser.validateDelete();
+        findUser.validateConsumer();
+
+        // 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
+        findOrder.getUsers().validateAccess(authUser);
+
         // 주문 완료인 경우에만 리뷰를 남길 수 있음
         if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.COMPLETE)) {
             throw new GlobalException(ErrorCode.REVIEW_ORDER_INVALID);
         }
-
-        // 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
-        findOrder.getUsers().validateAccess(authUser);
 
         /**
          * 주문에 연결된 매장id와 dto로 입력한 매장id가 일치하는지 확인
