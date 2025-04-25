@@ -7,6 +7,7 @@ import com.delivery.igo.igo_delivery.api.order.repository.OrderItemsRepository;
 import com.delivery.igo.igo_delivery.api.order.repository.OrderRepository;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewRequestDto;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewResponseDto;
+import com.delivery.igo.igo_delivery.api.review.dto.ReviewUpdateRequestDto;
 import com.delivery.igo.igo_delivery.api.review.entity.Reviews;
 import com.delivery.igo.igo_delivery.api.review.repository.ReviewRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
@@ -47,27 +48,23 @@ public class ReviewServiceImpl implements ReviewService {
             throw new GlobalException(ErrorCode.USER_NOT_FOUND);
         }
 
-        // DB에서 유저, 주문, 매장 조회
+        // DB에서 유저 조회 + 유효성 검증(UserStatus= LIVE, UserRole = CONSUMER)
         Users findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-
-        Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
-                .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
-
-        Stores findStore = storeRepository.findById(requestDto.getStoresId())
-                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
-
-        // 유효한 유저인지 검증(UserStatus= LIVE, UserRole = CCONSUMER)
         findUser.validateDelete();
         findUser.validateConsumer();
 
-        // 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
-        findOrder.getUsers().validateAccess(authUser);
-
-        // 주문 완료인 경우에만 리뷰를 남길 수 있음
-        if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.COMPLETE)) {
+        // DB에서 주문 조회 + 본인 확인 + 주문 상태 검증
+        Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
+        findOrder.getUsers().validateAccess(authUser);// 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
+        if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.COMPLETE)) { // 주문 완료인 경우에만 리뷰를 남길 수 있음
             throw new GlobalException(ErrorCode.REVIEW_ORDER_INVALID);
         }
+
+        // 매장 조회
+        Stores findStore = storeRepository.findById(requestDto.getStoresId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
 
         /**
          * 주문에 연결된 매장id와 dto로 입력한 매장id가 일치하는지 확인
@@ -77,25 +74,44 @@ public class ReviewServiceImpl implements ReviewService {
          *     - menusId로 storesId를 찾았을 때, dto에서 입력한 storesId와 같은지 검증
          * </Process>
          */
+        // 주문 상품 존재 및 storeId 일치 검증
         List<OrderItems> orderItemsList = orderItemsRepository.findByOrdersId(requestDto.getOrdersId());
-
         if (orderItemsList.isEmpty()) {
             throw new GlobalException(ErrorCode.REVIEW_ORDERITEM_NOT_FOUND);
         }
-
         OrderItems findOrderItem = orderItemsList.get(0);
-
         if (!Objects.equals(findOrderItem.getMenus().getStores().getId(),findStore.getId())) {
             throw new GlobalException(ErrorCode.REVIEW_STORE_MISMATCH);
         }
 
-        // 리뷰 생성
+        // 리뷰 생성 및 저장
         Reviews review = Reviews.of(findUser, findOrder, findStore, requestDto);
-
-        // 생성한 리뷰 저장
         Reviews savedReview = reviewRepository.save(review);
-
-        // 생성한 리뷰 Dto로 반환
         return ReviewResponseDto.from(savedReview);
     }
+
+//    @Override
+//    @Transactional
+//    public void updateReview(Long reviewId, AuthUser authUser, ReviewUpdateRequestDto requestDto) {
+//        // authUser NPE 방지
+//        if (authUser == null) {
+//            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+//        }
+//
+//        // 입력받은 Review, User의 DB 존재 여부 확인
+//        Reviews findReview = reviewRepository.findById(reviewId)
+//                .orElseThrow(()-> new GlobalException(ErrorCode.REVIEW_NOT_FOUND));
+//
+//        Users findUser = userRepository.findById(authUser.getId())
+//                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+//
+//
+//        // 유효한 유저인지 검증(UserStatus= LIVE, UserRole = CONSUMER)
+//        findUser.validateDelete();
+//        findUser.validateConsumer();
+//
+//        // 입력받은 주문 id로 조회한 userId(리뷰 작성자)와 API를 요청한(로그인) 유저의 userId가 일치하는지 확인
+//        findReview.getUsers().validateAccess(authUser);
+//
+//    }
 }

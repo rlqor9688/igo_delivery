@@ -167,40 +167,6 @@ public class ReviewServiceImplTest {
     }
 
     @Test
-    void createReview_주문이_없으면_ORDER_NOT_FOUND_에러를_던진다() {
-        // given
-        ReviewRequestDto requestDto = new ReviewRequestDto(1L,1L,"리뷰내용",5);
-
-        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
-        given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.empty()); // 주문 없음 처리
-
-        // when
-        GlobalException exception = assertThrows(GlobalException.class, ()->
-                reviewService.createReview(authUser,requestDto)
-        );
-
-        // then
-        assertEquals(ErrorCode.ORDER_NOT_FOUND, exception.getErrorCode());
-    }
-
-    @Test
-    void createReview_가게가_없으면_STORE_NOT_FOUND_예외를_던진다() {
-        // given
-        ReviewRequestDto requestDto = new ReviewRequestDto(1L, 1L, "리뷰내용", 5);
-
-        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
-        given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.of(order)); // 주문 없음 처리
-        given(storeRepository.findById(requestDto.getStoresId())).willReturn(Optional.empty());
-
-        // when
-        GlobalException exception = assertThrows(GlobalException.class, () ->
-                reviewService.createReview(authUser, requestDto));
-
-        // then
-        assertEquals(ErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
-    }
-
-    @Test
     void createReview_유저상태가_INACTIVE면_DELETED_USER_예외를_던진다() {
         // given
         ReviewRequestDto requestDto = new ReviewRequestDto(1L, 1L, "리뷰 내용", 5);
@@ -212,8 +178,6 @@ public class ReviewServiceImplTest {
                 .userStatus(UserStatus.INACTIVE)
                 .build();
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(deletedUser));
-        given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.of(order));
-        given(storeRepository.findById(requestDto.getStoresId())).willReturn(Optional.of(store));
 
         // when
         GlobalException exception = assertThrows(GlobalException.class, ()->
@@ -235,8 +199,6 @@ public class ReviewServiceImplTest {
                 .userStatus(UserStatus.LIVE)
                 .build();
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(owner));
-        given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.of(order));
-        given(storeRepository.findById(requestDto.getStoresId())).willReturn(Optional.of(store));
 
         // when
         GlobalException exception = assertThrows(GlobalException.class, () ->
@@ -244,6 +206,23 @@ public class ReviewServiceImplTest {
 
         // then
         assertEquals(ErrorCode.ROLE_CONSUMER_FORBIDDEN, exception.getErrorCode());
+    }
+
+    @Test
+    void createReview_주문이_없으면_ORDER_NOT_FOUND_에러를_던진다() {
+        // given
+        ReviewRequestDto requestDto = new ReviewRequestDto(1L,1L,"리뷰내용",5);
+
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+        given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.empty()); // 주문 없음 처리
+
+        // when
+        GlobalException exception = assertThrows(GlobalException.class, ()->
+                reviewService.createReview(authUser,requestDto)
+        );
+
+        // then
+        assertEquals(ErrorCode.ORDER_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
@@ -268,7 +247,6 @@ public class ReviewServiceImplTest {
 
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
         given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.of(orderByAnotherUser));
-        given(storeRepository.findById(requestDto.getStoresId())).willReturn(Optional.of(store));
 
         // when
         GlobalException exception = assertThrows(GlobalException.class, ()->
@@ -290,7 +268,6 @@ public class ReviewServiceImplTest {
                 .build();
         given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
         given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.of(incompleteOrder));
-        given(storeRepository.findById(requestDto.getStoresId())).willReturn(Optional.of(store));
 
         // when
         GlobalException exception = assertThrows(GlobalException.class, () ->
@@ -299,6 +276,23 @@ public class ReviewServiceImplTest {
 
         // then
         assertEquals(ErrorCode.REVIEW_ORDER_INVALID, exception.getErrorCode());
+    }
+
+    @Test
+    void createReview_가게가_없으면_STORE_NOT_FOUND_예외를_던진다() {
+        // given
+        ReviewRequestDto requestDto = new ReviewRequestDto(1L, 1L, "리뷰내용", 5);
+
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+        given(orderRepository.findById(requestDto.getOrdersId())).willReturn(Optional.of(order)); // 주문 없음 처리
+        given(storeRepository.findById(requestDto.getStoresId())).willReturn(Optional.empty());
+
+        // when
+        GlobalException exception = assertThrows(GlobalException.class, () ->
+                reviewService.createReview(authUser, requestDto));
+
+        // then
+        assertEquals(ErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
