@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class StoreServiceImpl implements StoreService{
+public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
@@ -49,6 +49,23 @@ public class StoreServiceImpl implements StoreService{
     // 매장 전체 조회
     @Override
     public Page<StoreListResponseDto> getStores(String storeName, Pageable pageable) {
+        int page = pageable.getPageNumber();
+        int size = pageable.getPageSize();
+
+        // 잘못된 페이지 번호인 경우
+        if (page < 0) {
+            throw new GlobalException(ErrorCode.INVALID_PAGE_PARAMETER);
+        }
+
+        // 잘못된 페이지 크기인 경우
+        if (size <= 0) {
+            throw new GlobalException(ErrorCode.INVALID_SIZE_TOO_SMALL);
+        }
+
+        // 페이지 크기가 너무 큰 경우
+        if (size > 100) {
+            throw new GlobalException(ErrorCode.INVALID_SIZE_TOO_LARGE);
+        }
 
         // storeName이 빈 문자열일 때 모든 매장을 조회
         // storeName이 비어있지 않으면 해당 이름을 포함하는 매장만 조회

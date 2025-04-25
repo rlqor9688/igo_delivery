@@ -7,7 +7,6 @@ import com.delivery.igo.igo_delivery.api.order.repository.OrderItemsRepository;
 import com.delivery.igo.igo_delivery.api.order.repository.OrderRepository;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewRequestDto;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewResponseDto;
-import com.delivery.igo.igo_delivery.api.review.dto.ReviewUpdateRequestDto;
 import com.delivery.igo.igo_delivery.api.review.entity.Reviews;
 import com.delivery.igo.igo_delivery.api.review.repository.ReviewRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
