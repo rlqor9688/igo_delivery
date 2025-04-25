@@ -30,6 +30,7 @@ public class MenuServiceImpl implements MenuService {
     public MenuResponseDto createMenu(AuthUser authUser, Long storesId, MenuRequestDto requestDto) {
 
         Users user = userValidator.validateOwner(authUser.getId());
+//        user.validateDelete();
 
         Stores store = storeValidator.validateStoreOwner(storesId, user);
 
@@ -44,6 +45,7 @@ public class MenuServiceImpl implements MenuService {
     public MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto) {
 
         Users user = userValidator.validateOwner(authUser.getId());
+//        user.validateDelete();
 
         Stores store = storeValidator.validateStoreOwner(storesId, user);
 
