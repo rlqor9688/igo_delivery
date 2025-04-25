@@ -89,7 +89,7 @@ public class ReviewServiceImplTest {
         order = Orders.builder()
                 .id(1L)
                 .users(user)
-                .orderStatus(OrderStatus.LIVE)
+                .orderStatus(OrderStatus.COMPLETE)
                 .orderAddress("부산시")
                 .build();
 
