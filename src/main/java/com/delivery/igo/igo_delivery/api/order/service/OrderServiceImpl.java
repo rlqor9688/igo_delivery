@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService{
             //요청을 날린 매장 주인이 해당 매장의 주인인지 확인 orderItems -> menus -> stores -> users -> id
             List<OrderItems> orderItems = orderItemsRepository.findByOrdersId(ordersId);
             Stores stores = orderItems.get(0).getMenus().getStores();
-            stores.validateOwner(stores.getUsers());
+            stores.validateOwner(users);
             //매장 주인이 주문 취소를 요청했을 경우 에러 출력
             if (requestStatus == OrderStatus.CANCELLED) {
                 throw new GlobalException(ErrorCode.OWNER_CANNOT_CANCEL_ORDER);
@@ -128,5 +128,6 @@ public class OrderServiceImpl implements OrderService{
         }
         throw new GlobalException(ErrorCode.INVALID_USER_ROLE);
     }
+
 
 }
