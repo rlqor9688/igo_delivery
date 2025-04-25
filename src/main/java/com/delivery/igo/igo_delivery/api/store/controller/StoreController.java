@@ -3,7 +3,6 @@ package com.delivery.igo.igo_delivery.api.store.controller;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.service.StoreService;
-import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreController {
 
     private final StoreService storeService;
-    private final UserRepository userRepository;
 
     // 매장 생성
     @PostMapping
