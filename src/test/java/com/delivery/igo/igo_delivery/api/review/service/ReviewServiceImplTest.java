@@ -56,9 +56,6 @@ public class ReviewServiceImplTest {
     @Mock
     private StoreRepository storeRepository;
 
-    @Mock
-    private MenuRepository menuRepository;
-
     @InjectMocks
     private ReviewServiceImpl reviewService;
 
