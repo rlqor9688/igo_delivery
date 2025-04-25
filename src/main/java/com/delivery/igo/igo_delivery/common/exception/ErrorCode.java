@@ -21,6 +21,9 @@ public enum ErrorCode {
     USER_EXIST_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     AUTH_TYPE_MISMATCH(HttpStatus.INTERNAL_SERVER_ERROR, "@Auth와 AuthUser 타입은 함께 사용되어야 합니다."),
 
+    // password
+    PASSWORD_DUPLICATED(HttpStatus.BAD_REQUEST, "같은 비밀번호로 중복 요청할 수 없습니다"),
+    PASSWORD_NOT_MATCHED(HttpStatus.BAD_REQUEST, "기존 비밀번호가 다릅니다."),
 
     // JWT
     JWT_REQUIRED(HttpStatus.BAD_REQUEST, "JWT 토큰이 필요합니다."),
