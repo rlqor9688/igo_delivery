@@ -65,7 +65,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
 
         // 주문 완료인 경우에만 리뷰를 남길 수 있음
-        if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.LIVE)) {
+        if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.COMPLETE)) {
             throw new GlobalException(ErrorCode.REVIEW_ORDER_INVALID);
         }
 
