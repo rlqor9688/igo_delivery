@@ -2,13 +2,16 @@ package com.delivery.igo.igo_delivery.api.menu.controller;
 
 import com.delivery.igo.igo_delivery.api.menu.dto.request.MenuRequestDto;
 import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
+import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuReadResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.service.MenuService;
 import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,5 +43,13 @@ public class MenuController {
         MenuResponseDto responseDto = menuService.updateMenu(authUser, storesId, id, requestDto);
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MenuReadResponseDto>> findAllMenu(@PathVariable Long storesId) {
+
+        List<MenuReadResponseDto> allMenu = menuService.findAllMenu(storesId);
+
+        return ResponseEntity.ok(allMenu);
     }
 }

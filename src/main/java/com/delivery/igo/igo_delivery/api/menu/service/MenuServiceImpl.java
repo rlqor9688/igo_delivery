@@ -1,7 +1,9 @@
 package com.delivery.igo.igo_delivery.api.menu.service;
 
 import com.delivery.igo.igo_delivery.api.menu.dto.request.MenuRequestDto;
+import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuReadResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuResponseDto;
+import com.delivery.igo.igo_delivery.api.menu.entity.MenuStatus;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
 import com.delivery.igo.igo_delivery.api.menu.repository.MenuRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
@@ -11,6 +13,8 @@ import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +55,17 @@ public class MenuServiceImpl implements MenuService {
         menu.updateMenu(requestDto.getMenuName(), requestDto.getPrice());
 
         return MenuResponseDto.from(menu);
+    }
+
+    @Override
+    public List<MenuReadResponseDto> findAllMenu(Long storesId) {
+
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        List<Menus> menusList = menuRepository.findMenusByStoreIdOrderByCreatedAtDesc(storesId, MenuStatus.LIVE);
+
+        return menusList.stream().map(MenuReadResponseDto::from).collect(Collectors.toList());
     }
 
     private Users getUserWithAccessCheck(Long id) {
