@@ -1,5 +1,6 @@
 package com.delivery.igo.igo_delivery.api.store.controller;
 
+import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.service.StoreService;
@@ -7,12 +8,15 @@ import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +33,22 @@ public class StoreController {
     ) {
         StoreResponseDto response = storeService.createStore(requestDto, loginUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getStores(
+            @RequestParam(defaultValue = "") String storeName,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<StoreListResponseDto> storePage = storeService.getStores(storeName, pageable);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("stores", storePage.getContent());
+        result.put("totalElements", storePage.getTotalElements());
+        result.put("page", storePage.getNumber());
+        result.put("size", storePage.getSize());
+        result.put("totalPages", storePage.getTotalPages());
+
+        return ResponseEntity.ok(result);
     }
 }

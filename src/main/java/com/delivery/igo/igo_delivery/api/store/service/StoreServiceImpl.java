@@ -1,5 +1,6 @@
 package com.delivery.igo.igo_delivery.api.store.service;
 
+import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
@@ -11,6 +12,8 @@ import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,5 +44,12 @@ public class StoreServiceImpl implements StoreService{
 
         // 저장된 엔티티를 DTO로 변환하여 반환
         return StoreResponseDto.from(store);
+    }
+
+    // 매장 전체 조회
+    @Override
+    public Page<StoreListResponseDto> getStores(String name, Pageable pageable) {
+        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(name, pageable);
+        return stores.map(StoreListResponseDto::from);
     }
 }
