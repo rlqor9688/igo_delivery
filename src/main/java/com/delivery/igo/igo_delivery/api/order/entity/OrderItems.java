@@ -1,8 +1,7 @@
 package com.delivery.igo.igo_delivery.api.order.entity;
 
+import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
-import com.delivery.igo.igo_delivery.api.store.entity.Stores;
-import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,4 +34,10 @@ public class OrderItems {
 
     @Column(nullable = false)
     private Integer orderQuantity;
+
+    public OrderItems(Orders orders, CartItems cartItems){
+        this.orders= orders;
+        this.menus = cartItems.getMenus();
+        this.orderQuantity = cartItems.getCartQuantity();
+    }
 }
