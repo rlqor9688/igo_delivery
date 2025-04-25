@@ -1,5 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
+import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.resonse.UserResponseDto;
@@ -25,7 +26,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto findUserById(Long id, AuthUser authUser) {
         Users users = userRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-
         users.validateAccess(authUser); // 로그인한 본인인지 검증
         users.validateDelete(); // 삭제 검증, 삭제된 상태라면 404 예외 발생
 
@@ -68,5 +68,19 @@ public class UserServiceImpl implements UserService {
 
         String encodedPassword = passwordEncoder.encode(requestDto.getNewPassword());
         users.updatePassword(encodedPassword);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id, AuthUser authUser, DeleteUserRequestDto requestDto) {
+        Users users = userRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        users.validateAccess(authUser); // 로그인한 본인인지 검증
+        users.validateDelete();
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), users.getPassword())) {
+            throw new GlobalException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
+
+        users.delete();
     }
 }
