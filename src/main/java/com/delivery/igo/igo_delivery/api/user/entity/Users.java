@@ -1,7 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.entity;
 
 import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
-import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
