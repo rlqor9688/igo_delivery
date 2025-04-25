@@ -19,6 +19,7 @@ import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -166,5 +167,58 @@ class OrderServiceTest {
         assertEquals(OrderStatus.COOKING, response.getOrderStatus());
     }
 
+    @Test
+    void 주문_조회_성공() {
+        // given
+        Long ordersId = 1L;
+        Long userId = 1L;
+
+        Users user = Users.builder().id(userId).build();
+        Orders order = new Orders(user, "주소지");
+        OrderItems orderItem = OrderItems.builder()
+                .menus(Menus.builder().stores(Stores.builder().users(user).build()).build())
+                .orderQuantity(2)
+                .orders(order)
+                .build();
+
+        List<OrderItems> orderItems = List.of(orderItem);
+
+        AuthUser authUser = new AuthUser(userId, "email@gmail.com", "테스트닉네임", UserRole.CONSUMER);
+
+        given(orderRepository.findById(ordersId)).willReturn(Optional.of(order));
+        given(orderItemsRepository.findByOrdersId(ordersId)).willReturn(orderItems);
+
+        // when
+        OrderResponse response = orderService.findOrder(authUser, ordersId);
+
+        // then
+        assertNotNull(response);
+        assertEquals(order.getId(), response.getId());
+    }
+
+    @Test
+    void 주문_조회_권한_없음_실패() {
+        // given
+        Long ordersId = 1L;
+        Long otherUserId = 2L;
+
+        Users user = Users.builder().id(ordersId).build();
+        Orders order = new Orders(user, "주소지");
+        OrderItems orderItem = OrderItems.builder()
+                .menus(Menus.builder().stores(Stores.builder().users(user).build()).build())
+                .orders(order)
+                .orderQuantity(2)
+                .build();
+
+        List<OrderItems> orderItems = List.of(orderItem);
+
+        AuthUser authUser = new AuthUser(otherUserId, "email@gmail.com", "테스트닉네임", UserRole.CONSUMER);
+
+        given(orderRepository.findById(ordersId)).willReturn(Optional.of(order));
+        given(orderItemsRepository.findByOrdersId(ordersId)).willReturn(orderItems);
+
+        // when & then
+        assertThrows(GlobalException.class, () -> orderService.findOrder(authUser, ordersId));
+    }
 
 }
