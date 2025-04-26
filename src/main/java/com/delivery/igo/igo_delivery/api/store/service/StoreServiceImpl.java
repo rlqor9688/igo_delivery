@@ -57,12 +57,12 @@ public class StoreServiceImpl implements StoreService {
             throw new GlobalException(ErrorCode.INVALID_PAGE_PARAMETER);
         }
 
-        // 잘못된 페이지 크기인 경우
+        // 잘못된 사이즈 크기인 경우
         if (size <= 0) {
             throw new GlobalException(ErrorCode.INVALID_SIZE_TOO_SMALL);
         }
 
-        // 페이지 크기가 너무 큰 경우
+        // 사이즈 크기가 너무 큰 경우
         if (size > 100) {
             throw new GlobalException(ErrorCode.INVALID_SIZE_TOO_LARGE);
         }
