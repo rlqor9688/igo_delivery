@@ -9,8 +9,8 @@ import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +39,11 @@ public class StoreController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getStores(
             @RequestParam(name = "storeName", defaultValue = "") String storeName,
-            @PageableDefault(size = 10) Pageable pageable
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
+        Pageable pageable = PageRequest.of(page, size);
+
         Page<StoreListResponseDto> storePage = storeService.getStores(storeName, pageable);
 
         Map<String, Object> result = new LinkedHashMap<>();
