@@ -98,19 +98,4 @@ public class Users extends BaseEntity {
         }
     }
 
-    public static Users of(SignupRequestDto signupRequestDto, String encodedPassword) {
-        UserRole userRole = UserRole.of(signupRequestDto.getUserRole());
-
-        return Users.builder()
-                .email(signupRequestDto.getEmail())
-                .nickname(signupRequestDto.getNickname())
-                .phoneNumber(signupRequestDto.getPhoneNumber())
-                .password(encodedPassword)
-                .address(signupRequestDto.getAddress())
-                .userRole(userRole)
-                .userStatus(UserStatus.LIVE)
-                .build();
-
-    }
-
 }
