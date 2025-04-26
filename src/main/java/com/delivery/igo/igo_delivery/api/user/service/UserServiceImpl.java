@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
             throw new GlobalException(ErrorCode.USER_EXIST_NICKNAME);
         }
 
-        users.updateBy(requestDto);
+        users.updateBy(requestDto.getNickname(), requestDto.getPhoneNumber(), requestDto.getAddress(), requestDto.getRole());
 
         return UserResponseDto.from(users);
     }

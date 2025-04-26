@@ -1,7 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.entity;
 
 import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
-import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
@@ -54,12 +53,12 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
-    // 내 정보 수정 -> 멀티 모듈 프로젝트?일때 문제 발생가능성
-    public void updateBy(UpdateUserRequestDto requestDto) {
-        this.nickname = requestDto.getNickname();
-        this.phoneNumber = requestDto.getPhoneNumber();
-        this.address = requestDto.getAddress();
-        this.userRole = requestDto.getRole();
+    // 내 정보 수정 -> 멀티 모듈 프로젝트일때 문제 발생가능성 있음
+    public void updateBy(String nickname, String phoneNumber, String address, UserRole role) {
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.userRole = role;
     }
 
     // 비밀번호 수정
@@ -115,4 +114,5 @@ public class Users extends BaseEntity {
                 .build();
 
     }
+
 }
