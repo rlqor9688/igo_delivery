@@ -83,22 +83,4 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
         return new ResponseEntity<>(errorDto, ErrorCode.VALID_BAD_REQUEST.getHttpStatus());
     }
-
-    /**
-     * 잘못된 요청 등을 GlobalException으로 던졌을 때
-     * 우리가 정의한 에러 코드와 메시지로 에러 응답을 내려주기 위한 처리
-     */
-    @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<ErrorDto> handleGlobalException(GlobalException e, HttpServletRequest request) {
-        log.error("[handleGlobalException] ex: ", e);
-        ErrorCode errorCode = e.getErrorCode();
-
-        ErrorDto errorDto = new ErrorDto(
-                errorCode.getHttpStatus().value(),
-                errorCode.getMessage(),
-                LocalDateTime.now(),
-                request.getRequestURI());
-
-        return new ResponseEntity<>(errorDto, errorCode.getHttpStatus());
-    }
 }
