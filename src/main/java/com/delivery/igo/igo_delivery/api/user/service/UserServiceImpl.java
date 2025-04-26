@@ -1,5 +1,8 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
+import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
+import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
+import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
@@ -21,6 +24,8 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final CartRepository cartRepository;
+    private final CartItemsRepository cartItemsRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -72,7 +77,11 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(requestDto.getPassword(), users.getPassword())) {
             throw new GlobalException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
+        Carts carts = cartRepository.findByUsers(users)
+                .orElseThrow(() -> new GlobalException(ErrorCode.CART_ITEM_NOT_FOUND));
 
+        cartItemsRepository.deleteAllByCarts(carts);
+        cartRepository.delete(carts);
         users.delete();
     }
 
