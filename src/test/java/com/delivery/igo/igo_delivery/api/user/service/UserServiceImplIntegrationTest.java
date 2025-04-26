@@ -1,8 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
 import com.delivery.igo.igo_delivery.IgoDeliveryApplication;
-import com.delivery.igo.igo_delivery.api.auth.service.AuthService;
-import com.delivery.igo.igo_delivery.api.auth.service.AuthServiceImpl;
 import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
@@ -24,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = IgoDeliveryApplication.class)
 @Transactional

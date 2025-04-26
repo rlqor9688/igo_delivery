@@ -1,6 +1,5 @@
 package com.delivery.igo.igo_delivery.api.user.entity;
 
-import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
