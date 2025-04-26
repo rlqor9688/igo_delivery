@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     private Users getUserWithAccessCheck(Long id, AuthUser authUser) {
         // 유저가 없으면 예외
         Users users = userRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-        users.validateAccess(authUser); // 로그인한 본인인지 검증
+        users.validateAccess(authUser.getId()); // 로그인한 본인인지 검증
         users.validateDelete();         // 삭제 되었는지 검증
         return users;
     }

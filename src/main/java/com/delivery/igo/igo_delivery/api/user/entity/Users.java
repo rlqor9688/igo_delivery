@@ -1,7 +1,6 @@
 package com.delivery.igo.igo_delivery.api.user.entity;
 
 import com.delivery.igo.igo_delivery.api.auth.dto.request.SignupRequestDto;
-import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import com.delivery.igo.igo_delivery.common.entity.BaseEntity;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
@@ -12,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
@@ -80,8 +78,8 @@ public class Users extends BaseEntity {
     }
 
     // 접근 권한 검증, 로그인한 유저의 id와 id가 다르면 예외 발생
-    public void validateAccess(AuthUser authUser) {
-        if (!Objects.equals(authUser.getId(), id)) {
+    public void validateAccess(long userId) {
+        if (userId != id) {
             throw new GlobalException(ErrorCode.FORBIDDEN);
         }
     }

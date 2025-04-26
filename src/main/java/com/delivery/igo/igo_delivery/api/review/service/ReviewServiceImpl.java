@@ -57,7 +57,7 @@ public class ReviewServiceImpl implements ReviewService {
         // DB에서 주문 조회 + 본인 확인 + 주문 상태 검증
         Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
-        findOrder.getUsers().validateAccess(authUser);// 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
+        findOrder.getUsers().validateAccess(authUser.getId());// 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
         if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.COMPLETE)) { // 주문 완료인 경우에만 리뷰를 남길 수 있음
             throw new GlobalException(ErrorCode.REVIEW_ORDER_INVALID);
         }
