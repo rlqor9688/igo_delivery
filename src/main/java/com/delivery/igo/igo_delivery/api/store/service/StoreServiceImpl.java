@@ -127,6 +127,7 @@ public class StoreServiceImpl implements StoreService {
                 .build();
     }
 
+    // 매장 폐업
     @Override
     @Transactional
     public void closeStore(Long storeId, Long authUserId) {
@@ -138,7 +139,6 @@ public class StoreServiceImpl implements StoreService {
             throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
         }
 
-        // 매장 폐업 처리
         store.close();
     }
 }
