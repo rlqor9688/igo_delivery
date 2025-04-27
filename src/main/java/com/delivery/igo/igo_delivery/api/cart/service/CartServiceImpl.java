@@ -1,6 +1,7 @@
 package com.delivery.igo.igo_delivery.api.cart.service;
 
 import com.delivery.igo.igo_delivery.api.cart.dto.request.CreateCartRequestDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.response.CartItemResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.dto.response.CreateCartResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.dto.response.FindAllCartsResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
@@ -84,9 +85,12 @@ public class CartServiceImpl implements CartService{
                 .orElseThrow(()-> new GlobalException(ErrorCode.NOT_FOUND));
 
         List<CartItems> findCartItems = cartItemsRepository.findAllByCarts(carts);
+        List<CartItemResponseDto> responseCartItems
+                = findCartItems.stream().map(CartItemResponseDto::from).toList();
+
         long totalCartPrice = findCartItems.stream().mapToLong(CartItems::totalPrice).sum();
 
-        return FindAllCartsResponseDto.of(carts.getId(), totalCartPrice, findCartItems);
+        return FindAllCartsResponseDto.of(carts.getId(), totalCartPrice, responseCartItems);
     }
 
 }

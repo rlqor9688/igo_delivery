@@ -12,13 +12,13 @@ public class FindAllCartsResponseDto {
 
     private final Long cartsId;
     private final Long totalPrice;
-    private final List<CartItems> items;
+    private final List<CartItemResponseDto> items;
 
-    public static FindAllCartsResponseDto of(Long cartsId, Long totalCartPrice, List<CartItems> items) {
+    public static FindAllCartsResponseDto of(Long cartsId, Long totalCartPrice, List<CartItemResponseDto> cartItemsDto) {
         return new FindAllCartsResponseDto(
                 cartsId,
                 totalCartPrice,
-                items
+                cartItemsDto
         );
     }
 }
