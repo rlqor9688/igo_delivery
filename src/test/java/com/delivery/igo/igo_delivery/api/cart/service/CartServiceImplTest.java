@@ -2,6 +2,7 @@ package com.delivery.igo.igo_delivery.api.cart.service;
 
 import com.delivery.igo.igo_delivery.api.cart.dto.request.CreateCartRequestDto;
 import com.delivery.igo.igo_delivery.api.cart.dto.response.CreateCartResponseDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.response.FindAllCartsResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
 import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
@@ -33,7 +34,7 @@ import java.util.Optional;
 
 
 @ExtendWith(MockitoExtension.class)
-class CartServiceTest {
+class CartServiceImplTest {
 
     @InjectMocks
     private CartServiceImpl cartService;
@@ -174,5 +175,68 @@ class CartServiceTest {
         assertNotNull(response);
         verify(cartItemsRepository).deleteAll(List.of(oldItem));
         verify(cartItemsRepository).save(any(CartItems.class));
+    }
+
+    @Test
+    void 장바구니_전체_조회_성공() {
+        // given
+        Long usersId = 1L;
+
+        AuthUser authUser = new AuthUser(usersId, "test123@gmail.com", "테스트용", UserRole.CONSUMER);
+        Users users = Users.builder()
+                .id(usersId)
+                .email("test@test.com")
+                .nickname("tester")
+                .build();
+
+        Carts carts = Carts.builder().users(users).build();
+
+        Stores store = Stores.builder().id(1L).build();
+
+        Menus menu1 = Menus.builder()
+                .id(1L)
+                .menuName("피자")
+                .price(10000L)
+                .menuStatus(MenuStatus.LIVE)
+                .stores(store)
+                .build();
+        Menus menu2 = Menus.builder()
+                .id(2L)
+                .menuName("햄버거")
+                .price(5000L)
+                .menuStatus(MenuStatus.LIVE)
+                .stores(store)
+                .build();
+
+        CartItems cartItem1 = CartItems.builder()
+                .carts(carts)
+                .menus(menu1)
+                .cartPrice(menu1.getPrice())
+                .cartQuantity(2)
+                .build();
+
+        CartItems cartItem2 = CartItems.builder()
+                .carts(carts)
+                .menus(menu2)
+                .cartPrice(menu2.getPrice())
+                .cartQuantity(3)
+                .build();
+
+        given(userRepository.findById(usersId)).willReturn(Optional.of(users));
+        given(cartRepository.findByUsers(users)).willReturn(Optional.of(carts));
+        given(cartItemsRepository.findAllByCarts(carts)).willReturn(List.of(cartItem1, cartItem2));
+
+        // when
+        FindAllCartsResponseDto response = cartService.findAllCarts(authUser);
+
+        // then
+        assertNotNull(response);
+        assertEquals(carts.getId(), response.getCartsId());
+        assertEquals(10000L * 2 + 5000L * 3, response.getTotalPrice());
+        assertEquals(2, response.getItems().size());
+
+        verify(userRepository).findById(usersId);
+        verify(cartRepository).findByUsers(users);
+        verify(cartItemsRepository).findAllByCarts(carts);
     }
 }
