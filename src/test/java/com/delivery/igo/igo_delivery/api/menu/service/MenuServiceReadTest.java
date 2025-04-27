@@ -69,7 +69,7 @@ public class MenuServiceReadTest {
                 .build();
 
         menu3 = Menus.builder()
-                .id(2L)
+                .id(3L)
                 .stores(store)
                 .menuName("Test Menu 3")
                 .price(2000L)
@@ -111,5 +111,59 @@ public class MenuServiceReadTest {
 
         verify(storeRepository).findById(storeId);
         verify(menuRepository, never()).findMenusByStoreIdOrderByCreatedAtDesc(storeId, MenuStatus.LIVE);
+    }
+
+    @Test
+    void menus_메뉴_단건_조회에_성공한다() {
+
+        Long storeId = 1L;
+        Long menuId = 1L;
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+        given(menuRepository.findByIdAndStoresId(menuId, storeId)).willReturn(Optional.of(menu1));
+
+        MenuReadResponseDto responseDto = menuService.findMenuById(storeId, menuId);
+
+        assertEquals(responseDto.getMenuName(), menu1.getMenuName());
+
+        verify(storeRepository).findById(storeId);
+        verify(menuRepository).findByIdAndStoresId(menuId, storeId);
+    }
+
+    @Test
+    void menus_삭제된_메뉴를_조회시_메뉴_단건_조회에_실패한다() {
+
+        Long storeId = 1L;
+        Long menuId = 3L;
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+        given(menuRepository.findByIdAndStoresId(menuId, storeId)).willReturn(Optional.of(menu3));
+
+        GlobalException exception = assertThrows(GlobalException.class, () -> {
+            menuService.findMenuById(storeId, menuId);
+        });
+
+        assertEquals(ErrorCode.DELETED_MENU, exception.getErrorCode());
+
+        verify(storeRepository).findById(storeId);
+        verify(menuRepository).findByIdAndStoresId(menuId, storeId);
+    }
+
+    @Test
+    void menus_존재하지_않는_매장을_조회시_메뉴_단건_조회에_실패한다() {
+
+        Long storeId = 2L;
+        Long menuId = 1L;
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.empty());
+
+        GlobalException exception = assertThrows(GlobalException.class, () -> {
+            menuService.findMenuById(storeId, menuId);
+        });
+
+        assertEquals(ErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
+
+        verify(storeRepository).findById(storeId);
+        verify(menuRepository, never()).findByIdAndStoresId(menuId, storeId);
     }
 }
