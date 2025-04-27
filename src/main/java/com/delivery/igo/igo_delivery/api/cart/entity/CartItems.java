@@ -49,4 +49,16 @@ public class CartItems {
     public long totalPrice() {
         return cartPrice * cartQuantity.longValue();
     }
+
+    public void increaseQuantity() {
+        cartQuantity++;
+    }
+
+    public void decreaseQuantity() {
+        cartQuantity--;
+    }
+
+    public boolean isQuantityZero() {
+        return cartQuantity <= 0;
+    }
 }
