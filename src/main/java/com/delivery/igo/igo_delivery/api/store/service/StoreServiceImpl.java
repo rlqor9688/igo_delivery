@@ -27,7 +27,7 @@ public class StoreServiceImpl implements StoreService {
     private static final int DEFAULT_PAGE_NUMBER = 0;
     private static final int MIN_PAGE_SIZE = 1;
     private static final int DEFAULT_PAGE_SIZE = 10;
-    private static final int MAX_PAGE_SIZE = 500;
+    private static final int MAX_PAGE_SIZE = 50;
 
     // 매장 생성
     @Transactional
