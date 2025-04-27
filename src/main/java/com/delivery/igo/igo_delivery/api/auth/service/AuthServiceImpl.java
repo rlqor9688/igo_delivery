@@ -6,6 +6,7 @@ import com.delivery.igo.igo_delivery.api.auth.dto.response.LoginResponseDto;
 import com.delivery.igo.igo_delivery.api.auth.dto.response.SignupResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
+import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.UserStatus;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
@@ -39,10 +40,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+        UserRole userRole = UserRole.of(requestDto.getUserRole());
+        Users newUser = buildUser(requestDto, encodedPassword, userRole);
 
-        Users newUser = Users.of(requestDto, encodedPassword);
         Users savedUser = userRepository.save(newUser);
-
         cartRepository.save(new Carts(savedUser));
 
         return SignupResponseDto.of(savedUser);
@@ -70,5 +71,17 @@ public class AuthServiceImpl implements AuthService {
         if (!user.getId().equals(authUser.getId())) {
             throw new AuthException(ErrorCode.FORBIDDEN);
         }
+    }
+
+    private Users buildUser(SignupRequestDto requestDto, String encodedPassword, UserRole userRole) {
+        return Users.builder()
+                .email(requestDto.getEmail())
+                .nickname(requestDto.getNickname())
+                .phoneNumber(requestDto.getPhoneNumber())
+                .password(encodedPassword)
+                .address(requestDto.getAddress())
+                .userRole(userRole)
+                .userStatus(UserStatus.LIVE)
+                .build();
     }
 }

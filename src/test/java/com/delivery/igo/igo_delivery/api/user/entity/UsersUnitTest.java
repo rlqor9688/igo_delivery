@@ -16,7 +16,7 @@ class UsersUnitTest {
         Users user = Users.builder().userStatus(UserStatus.INACTIVE).build();
 
         // when & then
-        GlobalException exception = assertThrows(GlobalException.class, () -> user.validateDelete());
+        GlobalException exception = assertThrows(GlobalException.class, user::validateDelete);
         assertEquals(ErrorCode.DELETED_USER, exception.getErrorCode());
     }
 
@@ -27,7 +27,7 @@ class UsersUnitTest {
         AuthUser authUser = new AuthUser(2L, null, null, null);
 
         // when * then
-        GlobalException exception = assertThrows(GlobalException.class, () -> user.validateAccess(authUser));
+        GlobalException exception = assertThrows(GlobalException.class, () -> user.validateAccess(authUser.getId()));
         assertEquals(ErrorCode.FORBIDDEN, exception.getErrorCode());
     }
 }
