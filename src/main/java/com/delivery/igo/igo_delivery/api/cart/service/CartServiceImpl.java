@@ -1,7 +1,8 @@
 package com.delivery.igo.igo_delivery.api.cart.service;
 
-import com.delivery.igo.igo_delivery.api.cart.dto.CartRequest;
-import com.delivery.igo.igo_delivery.api.cart.dto.CartResponse;
+import com.delivery.igo.igo_delivery.api.cart.dto.request.CreateCartRequestDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.response.CreateCartResponseDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.response.FindAllCartsResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
 import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
@@ -32,7 +33,7 @@ public class CartServiceImpl implements CartService{
     //todo :  해당 service 관련 에러 코드 추가
     @Override
     @Transactional
-    public CartResponse addCart(AuthUser authUser, CartRequest request) {
+    public CreateCartResponseDto addCart(AuthUser authUser, CreateCartRequestDto request) {
 
         //로그인한 유저 호출
         Users users = userRepository.findById(authUser.getId())
@@ -68,8 +69,24 @@ public class CartServiceImpl implements CartService{
             CartItems newItem = new CartItems(menus, carts, menus.getPrice(), request.getCartQuantity());
             cartItemsRepository.save(newItem);
         }
-        return CartResponse.from(carts);
+        return CreateCartResponseDto.from(carts);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public FindAllCartsResponseDto findAllCarts(AuthUser authUser) {
+
+        Users users = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        users.validateAccess(authUser.getId());
+
+        Carts carts = cartRepository.findByUsers(users)
+                .orElseThrow(()-> new GlobalException(ErrorCode.NOT_FOUND));
+
+        List<CartItems> findCartItems = cartItemsRepository.findAllByCarts(carts);
+        long totalCartPrice = findCartItems.stream().mapToLong(CartItems::totalPrice).sum();
+
+        return FindAllCartsResponseDto.of(carts.getId(), totalCartPrice, findCartItems);
+    }
 
 }

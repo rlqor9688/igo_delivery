@@ -1,7 +1,7 @@
 package com.delivery.igo.igo_delivery.api.cart.service;
 
-import com.delivery.igo.igo_delivery.api.cart.dto.CartRequest;
-import com.delivery.igo.igo_delivery.api.cart.dto.CartResponse;
+import com.delivery.igo.igo_delivery.api.cart.dto.request.CreateCartRequestDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.response.CreateCartResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
 import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
@@ -73,14 +73,14 @@ class CartServiceTest {
                 .menuStatus(MenuStatus.LIVE)
                 .build();
 
-        CartRequest request = new CartRequest(menusId, quantity);
+        CreateCartRequestDto request = new CreateCartRequestDto(menusId, quantity);
         given(userRepository.findById(anyLong())).willReturn(Optional.of(users));
         given(cartRepository.findByUsers(users)).willReturn(Optional.of(carts));
         given(menuRepository.findById(anyLong())).willReturn(Optional.of(menus));
         given(cartItemsRepository.findByCartsAndMenus(carts, menus)).willReturn(Optional.empty());
 
         // when
-        CartResponse response = cartService.addCart(authUser, request);
+        CreateCartResponseDto response = cartService.addCart(authUser, request);
 
         // then
         assertNotNull(response);
@@ -125,7 +125,7 @@ class CartServiceTest {
                 .build();
 
 
-        CartRequest request = new CartRequest(menusId, addQuantity);
+        CreateCartRequestDto request = new CreateCartRequestDto(menusId, addQuantity);
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(users));
         given(cartRepository.findByUsers(users)).willReturn(Optional.of(carts));
@@ -134,7 +134,7 @@ class CartServiceTest {
 
 
         // when
-        CartResponse response = cartService.addCart(authUser, request);
+        CreateCartResponseDto response = cartService.addCart(authUser, request);
 
         // then
         assertNotNull(response);
@@ -159,7 +159,7 @@ class CartServiceTest {
         Menus newMenu = Menus.builder().id(menusId).stores(newStore).price(1500L).build();
 
         CartItems oldItem = CartItems.builder().menus(oldMenu).carts(carts).cartQuantity(1).build();
-        CartRequest request = new CartRequest(menusId, 1);
+        CreateCartRequestDto request = new CreateCartRequestDto(menusId, 1);
         AuthUser authUser = new AuthUser(usersId, "email", "nickname", UserRole.CONSUMER);
 
         given(userRepository.findById(usersId)).willReturn(Optional.of(users));
@@ -168,7 +168,7 @@ class CartServiceTest {
         given(cartItemsRepository.findByCartsAndMenus(carts, newMenu)).willReturn(Optional.of(oldItem));
 
         // when
-        CartResponse response = cartService.addCart(authUser, request);
+        CreateCartResponseDto response = cartService.addCart(authUser, request);
 
         // then
         assertNotNull(response);
