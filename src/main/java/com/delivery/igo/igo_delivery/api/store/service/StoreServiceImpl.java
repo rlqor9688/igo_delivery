@@ -81,7 +81,8 @@ public class StoreServiceImpl implements StoreService {
         Pageable correctedPageable = PageRequest.of(page, size);
 
         // 삭제되지 않은 매장 중 이름으로 조회
-        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(storeName, correctedPageable);
+        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndStoreStatusAndDeletedAtIsNull(
+                storeName, StoreStatus.LIVE, correctedPageable);
 
         // 조회된 매장들을 StoreListResponseDto로 변환하여 반환
         return stores.map(StoreListResponseDto::from);
@@ -91,7 +92,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     @Transactional(readOnly = true)
     public StoreResponseDto getStore(Long storeId) {
-        Stores store = storeRepository.findById(storeId)
+        Stores store = storeRepository.findByIdAndStoreStatus(storeId, StoreStatus.LIVE)
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
 
         // 해당 매장의 등록된 메뉴 목록 조회
@@ -101,6 +102,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     // 매장 수정
+    @Override
     @Transactional
     public StoreUpdateResponseDto updateStore(Long storeId, Long authUserId, StoreUpdateRequestDto requestDto) {
         Stores store = storeRepository.findById(storeId)
@@ -124,5 +126,20 @@ public class StoreServiceImpl implements StoreService {
         return StoreUpdateResponseDto.builder()
                 .id(store.getId())
                 .build();
+    }
+
+    // 매장 폐업
+    @Override
+    @Transactional
+    public void closeStore(Long storeId, Long authUserId) {
+        Stores store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        // 본인 소유 매장인지 검증
+        if (!store.getUsers().getId().equals(authUserId)) {
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
+
+        store.delete();
     }
 }
