@@ -8,5 +8,5 @@ import lombok.Getter;
 public class UpdateCartItemResponseDto {
 
     private final Long id;
-    private final int Quantity;
+    private final int quantity;
 }
