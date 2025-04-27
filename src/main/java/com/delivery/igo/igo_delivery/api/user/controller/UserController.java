@@ -9,7 +9,6 @@ import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
