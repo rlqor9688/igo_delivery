@@ -64,9 +64,6 @@ public enum ErrorCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
     STORE_OWNER_MISMATCH(HttpStatus.FORBIDDEN, "해당 가게의 사장님만 접근할 수 있습니다."),
     MAX_STORE_LIMIT(HttpStatus.BAD_REQUEST, "매장은 최대 3개까지 생성할 수 있습니다."),
-    INVALID_PAGE_PARAMETER(HttpStatus.BAD_REQUEST, "잘못된 페이지 번호입니다."),
-    INVALID_SIZE_TOO_SMALL(HttpStatus.BAD_REQUEST, "사이즈 크기는 1 이상이어야 합니다."),
-    INVALID_SIZE_TOO_LARGE(HttpStatus.BAD_REQUEST, "사이즈 크기는 100 이하여야 합니다."),
 
     // Menu
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "메뉴를 찾을 수 없습니다."),

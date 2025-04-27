@@ -13,6 +13,7 @@ import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,11 @@ public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
+
+    private static final int DEFAULT_PAGE_NUMBER = 0;
+    private static final int MIN_PAGE_SIZE = 1;
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int MAX_PAGE_SIZE = 500;
 
     // 매장 생성
     @Transactional
@@ -52,24 +58,26 @@ public class StoreServiceImpl implements StoreService {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
 
-        // 잘못된 페이지 번호인 경우
-        if (page < 0) {
-            throw new GlobalException(ErrorCode.INVALID_PAGE_PARAMETER);
+        // 페이지가 기본값 미만인 경우 기본값으로 조정
+        if (page < DEFAULT_PAGE_NUMBER) {
+            page = DEFAULT_PAGE_NUMBER;
         }
 
-        // 잘못된 사이즈 크기인 경우
-        if (size <= 0) {
-            throw new GlobalException(ErrorCode.INVALID_SIZE_TOO_SMALL);
+        // 사이즈가 최소 허용값 미만인 경우 기본값으로 조정
+        if (size < MIN_PAGE_SIZE) {
+            size = DEFAULT_PAGE_SIZE;
         }
 
-        // 사이즈 크기가 너무 큰 경우
-        if (size > 100) {
-            throw new GlobalException(ErrorCode.INVALID_SIZE_TOO_LARGE);
+        // 사이즈가 최대 허용값을 초과하면 최대값으로 조정
+        if (size > MAX_PAGE_SIZE) {
+            size = MAX_PAGE_SIZE;
         }
 
-        // storeName이 빈 문자열일 때 모든 매장을 조회
-        // storeName이 비어있지 않으면 해당 이름을 포함하는 매장만 조회
-        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(storeName, pageable);
+        // 보정된 page, size 값으로 Pageable 객체 생성
+        Pageable correctedPageable = PageRequest.of(page, size);
+
+        // 삭제되지 않은 매장 중 이름으로 조회
+        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(storeName, correctedPageable);
 
         // 조회된 매장들을 StoreListResponseDto로 변환하여 반환
         return stores.map(StoreListResponseDto::from);
