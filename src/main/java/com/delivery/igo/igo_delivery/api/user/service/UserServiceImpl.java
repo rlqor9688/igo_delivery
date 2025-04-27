@@ -1,5 +1,8 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
+import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
+import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
+import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
@@ -21,6 +24,8 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final CartRepository cartRepository;
+    private final CartItemsRepository cartItemsRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -41,7 +46,7 @@ public class UserServiceImpl implements UserService {
             throw new GlobalException(ErrorCode.USER_EXIST_NICKNAME);
         }
 
-        users.updateBy(requestDto);
+        users.updateBy(requestDto.getNickname(), requestDto.getPhoneNumber(), requestDto.getAddress(), requestDto.getRole());
 
         return UserResponseDto.from(users);
     }
@@ -72,7 +77,11 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(requestDto.getPassword(), users.getPassword())) {
             throw new GlobalException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
+        Carts carts = cartRepository.findByUsers(users)
+                .orElseThrow(() -> new GlobalException(ErrorCode.CART_ITEM_NOT_FOUND));
 
+        cartItemsRepository.deleteAllByCarts(carts);
+        cartRepository.delete(carts);
         users.delete();
     }
 
@@ -80,7 +89,7 @@ public class UserServiceImpl implements UserService {
     private Users getUserWithAccessCheck(Long id, AuthUser authUser) {
         // 유저가 없으면 예외
         Users users = userRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-        users.validateAccess(authUser); // 로그인한 본인인지 검증
+        users.validateAccess(authUser.getId()); // 로그인한 본인인지 검증
         users.validateDelete();         // 삭제 되었는지 검증
         return users;
     }

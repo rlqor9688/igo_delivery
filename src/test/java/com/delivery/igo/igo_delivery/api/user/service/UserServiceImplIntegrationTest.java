@@ -1,6 +1,8 @@
 package com.delivery.igo.igo_delivery.api.user.service;
 
 import com.delivery.igo.igo_delivery.IgoDeliveryApplication;
+import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
+import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.user.dto.request.DeleteUserRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdatePasswordRequestDto;
 import com.delivery.igo.igo_delivery.api.user.dto.request.UpdateUserRequestDto;
@@ -20,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = IgoDeliveryApplication.class)
 @Transactional
@@ -29,6 +30,9 @@ class UserServiceImplIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    CartRepository cartRepository;
 
     @Autowired
     UserServiceImpl userService;
@@ -54,6 +58,9 @@ class UserServiceImplIntegrationTest {
         userRepository.save(user);
 
         authUser = new AuthUser(user.getId(), "email@naver.com", "정상유저", UserRole.OWNER);
+
+        Carts carts = new Carts(user);
+        cartRepository.save(carts);
     }
 
     @Test
@@ -107,7 +114,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void 비밀번호_수정이_정상적으로_성공() {
+    void 회원삭제가_정상적으로_성공() {
         // given
         DeleteUserRequestDto requestDto = new DeleteUserRequestDto("oldPassword123!@#");
 
@@ -119,7 +126,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void 비밀번호_수정이_실패하면_트랜잭션롤백() {
+    void 회원_삭제가_실패하면_트랜잭션롤백() {
         // given
         DeleteUserRequestDto requestDto = new DeleteUserRequestDto("oldPassword123!@#");
         AuthUser otherAuthUser = new AuthUser(999L, "other@naver.com", "다른유저", UserRole.OWNER);
@@ -129,4 +136,5 @@ class UserServiceImplIntegrationTest {
         assertEquals(UserStatus.LIVE, user.getUserStatus());
         assertNotEquals(UserStatus.INACTIVE, user.getUserStatus());
     }
+
 }
