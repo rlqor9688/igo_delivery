@@ -58,7 +58,7 @@ public class StoreController {
     public ResponseEntity<StoreUpdateResponseDto> updateStore(
             @PathVariable Long id,
             @Auth AuthUser authUser,
-            @RequestBody StoreUpdateRequestDto requestDto
+            @Valid @RequestBody StoreUpdateRequestDto requestDto
     ) {
         StoreUpdateResponseDto response = storeService.updateStore(id, authUser.getId(), requestDto);
         return ResponseEntity.ok(response);
