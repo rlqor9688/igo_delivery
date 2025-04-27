@@ -10,12 +10,12 @@ import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +30,8 @@ public class StoreServiceImpl implements StoreService {
     private static final int MAX_PAGE_SIZE = 50;
 
     // 매장 생성
-    @Transactional
     @Override
+    @Transactional
     public StoreResponseDto createStore(StoreRequestDto requestDto, Long userId) {
         Users owner = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
@@ -54,6 +54,7 @@ public class StoreServiceImpl implements StoreService {
 
     // 매장 전체 조회
     @Override
+    @Transactional(readOnly = true)
     public Page<StoreListResponseDto> getStores(String storeName, Pageable pageable) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
@@ -81,5 +82,14 @@ public class StoreServiceImpl implements StoreService {
 
         // 조회된 매장들을 StoreListResponseDto로 변환하여 반환
         return stores.map(StoreListResponseDto::from);
+    }
+
+    // 매장 단건 조회
+    @Override
+    @Transactional(readOnly = true)
+    public StoreResponseDto getStore(Long storeId) {
+        Stores store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+        return StoreResponseDto.from(store);
     }
 }
