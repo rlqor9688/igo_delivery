@@ -101,6 +101,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     // 매장 수정
+    @Override
     @Transactional
     public StoreUpdateResponseDto updateStore(Long storeId, Long authUserId, StoreUpdateRequestDto requestDto) {
         Stores store = storeRepository.findById(storeId)
@@ -124,5 +125,20 @@ public class StoreServiceImpl implements StoreService {
         return StoreUpdateResponseDto.builder()
                 .id(store.getId())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void closeStore(Long storeId, Long authUserId) {
+        Stores store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        // 본인 소유 매장인지 검증
+        if (!store.getUsers().getId().equals(authUserId)) {
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
+
+        // 매장 폐업 처리
+        store.close();
     }
 }

@@ -83,4 +83,9 @@ public class Stores extends BaseEntity {
         this.endTime = Time.valueOf(endTime);       // 영업 종료 시간 수정
         this.minOrderPrice = minOrderPrice;         // 최소 주문 금액 수정
     }
+
+    // 매장 폐업
+    public void close() {
+        this.storeStatus = StoreStatus.CLOSED;
+    }
 }

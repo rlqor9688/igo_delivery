@@ -63,4 +63,14 @@ public class StoreController {
         StoreUpdateResponseDto response = storeService.updateStore(id, authUser.getId(), requestDto);
         return ResponseEntity.ok(response);
     }
+
+    // 매장 폐업
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> closeStore(
+            @PathVariable Long id,
+            @Auth AuthUser authUser
+    ) {
+        storeService.closeStore(id, authUser.getId());
+        return ResponseEntity.noContent().build();
+    }
 }
