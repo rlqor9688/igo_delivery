@@ -81,7 +81,8 @@ public class StoreServiceImpl implements StoreService {
         Pageable correctedPageable = PageRequest.of(page, size);
 
         // 삭제되지 않은 매장 중 이름으로 조회
-        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndDeletedAtIsNull(storeName, correctedPageable);
+        Page<Stores> stores = storeRepository.findByStoreNameContainingIgnoreCaseAndStoreStatusAndDeletedAtIsNull(
+                storeName, StoreStatus.LIVE, correctedPageable);
 
         // 조회된 매장들을 StoreListResponseDto로 변환하여 반환
         return stores.map(StoreListResponseDto::from);
@@ -91,7 +92,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     @Transactional(readOnly = true)
     public StoreResponseDto getStore(Long storeId) {
-        Stores store = storeRepository.findById(storeId)
+        Stores store = storeRepository.findByIdAndStoreStatus(storeId, StoreStatus.LIVE)
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
 
         // 해당 매장의 등록된 메뉴 목록 조회
