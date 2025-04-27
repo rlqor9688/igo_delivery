@@ -63,10 +63,6 @@ public class Stores extends BaseEntity {
     @Column(nullable = false)
     private Double avgRating = 0.0; // 평균 별점 (초기값 0.0)
 
-    public void delete() {
-        this.deletedAt = LocalDateTime.now();
-    }
-
     public void validateOwner(Users user) {
         if (!Objects.equals(this.getUsers().getId(), user.getId())) {
             throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
@@ -85,7 +81,8 @@ public class Stores extends BaseEntity {
     }
 
     // 매장 폐업
-    public void close() {
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
         this.storeStatus = StoreStatus.CLOSED;
     }
 }

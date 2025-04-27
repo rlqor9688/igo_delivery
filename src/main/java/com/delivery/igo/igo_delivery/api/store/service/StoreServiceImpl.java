@@ -140,6 +140,6 @@ public class StoreServiceImpl implements StoreService {
             throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
         }
 
-        store.close();
+        store.delete();
     }
 }
