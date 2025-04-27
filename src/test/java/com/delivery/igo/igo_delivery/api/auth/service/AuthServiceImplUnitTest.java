@@ -77,7 +77,16 @@ class AuthServiceImplUnitTest {
     @Test
     void 로그인이_성공하면_토큰이_발급됨() {
         // given
-        Users mockUser = Users.of(SIGNUP_REQUEST_DTO, "encodedPassword");
+        Users mockUser = Users.builder()
+                .email(SIGNUP_REQUEST_DTO.getEmail())
+                .nickname(SIGNUP_REQUEST_DTO.getNickname())
+                .phoneNumber(SIGNUP_REQUEST_DTO.getPhoneNumber())
+                .password("encodedPassword")
+                .address(SIGNUP_REQUEST_DTO.getAddress())
+                .userRole(UserRole.of(SIGNUP_REQUEST_DTO.getUserRole()))
+                .userStatus(UserStatus.LIVE)
+                .build();
+
         given(userRepository.findByEmailAndUserStatus(SIGNUP_REQUEST_DTO.getEmail(), UserStatus.LIVE)).willReturn(Optional.of(mockUser));
         given(passwordEncoder.matches(LOGIN_REQUEST_DTO.getPassword(), mockUser.getPassword())).willReturn(true);
         given(jwtUtil.createToken(mockUser)).willReturn("mockToken");
@@ -106,7 +115,15 @@ class AuthServiceImplUnitTest {
     @Test
     void 로그인시_비밀번호가_일지하지않으면_예외발생_에러코드_LOGIN_FALIED() {
         // given
-        Users mockUser = Users.of(SIGNUP_REQUEST_DTO, "encodedPassword");
+        Users mockUser = Users.builder()
+                .email(SIGNUP_REQUEST_DTO.getEmail())
+                .nickname(SIGNUP_REQUEST_DTO.getNickname())
+                .phoneNumber(SIGNUP_REQUEST_DTO.getPhoneNumber())
+                .password("encodedPassword")
+                .address(SIGNUP_REQUEST_DTO.getAddress())
+                .userRole(UserRole.of(SIGNUP_REQUEST_DTO.getUserRole()))
+                .userStatus(UserStatus.LIVE)
+                .build();
 
         given(userRepository.findByEmailAndUserStatus(LOGIN_REQUEST_DTO.getEmail(), UserStatus.LIVE)).willReturn(Optional.of(mockUser));
         given(passwordEncoder.matches(LOGIN_REQUEST_DTO.getPassword(), mockUser.getPassword())).willReturn(false);

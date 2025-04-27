@@ -1,18 +1,20 @@
 package com.delivery.igo.igo_delivery.api.store.controller;
 
+import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.service.StoreService;
 import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
+import com.delivery.igo.igo_delivery.common.dto.PageResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +31,20 @@ public class StoreController {
     ) {
         StoreResponseDto response = storeService.createStore(requestDto, loginUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 매장 전체 조회
+    @GetMapping
+    public ResponseEntity<PageResponseDto<StoreListResponseDto>> getStores(
+            @RequestParam(name = "storeName", defaultValue = "") String storeName,
+            @PageableDefault(page = 0, size = 10) Pageable pageable
+    ) {
+        // 매장 목록을 페이지네이션 조회
+        Page<StoreListResponseDto> storePage = storeService.getStores(storeName, pageable);
+
+        // 조회 결과를 PageResponseDto 형태로 변환
+        PageResponseDto<StoreListResponseDto> response = PageResponseDto.from(storePage);
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -48,20 +48,20 @@ public class Menus extends BaseEntity {
         this.menuStatus = MenuStatus.INACTIVE;
     }
 
-    public static Menus of(Stores stores, MenuRequestDto requestDto) {
+    public static Menus of(Stores stores, String menuName, Long price) {
 
         return Menus.builder()
                 .stores(stores)
-                .menuName(requestDto.getMenuName())
-                .price(requestDto.getPrice())
+                .menuName(menuName)
+                .price(price)
                 .menuStatus(MenuStatus.LIVE)
                 .build();
     }
 
-    public void updateMenu(MenuRequestDto requestDto) {
+    public void updateMenu(String menuName, Long price) {
 
-        this.menuName = requestDto.getMenuName();
-        this.price = requestDto.getPrice();
+        this.menuName = menuName;
+        this.price = price;
     }
 
     public void validateDelete() {
