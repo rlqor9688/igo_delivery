@@ -1,7 +1,6 @@
 package com.delivery.igo.igo_delivery.api.cart.entity;
 
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
-import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

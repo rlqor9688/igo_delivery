@@ -1,6 +1,5 @@
 package com.delivery.igo.igo_delivery.api.cart.dto.response;
 
-import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
