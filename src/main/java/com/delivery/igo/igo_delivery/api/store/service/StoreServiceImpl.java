@@ -1,8 +1,8 @@
 package com.delivery.igo.igo_delivery.api.store.service;
 
-import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
+import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuReadResponseDto;
+import com.delivery.igo.igo_delivery.api.menu.service.MenuService;
+import com.delivery.igo.igo_delivery.api.store.dto.*;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
@@ -10,12 +10,14 @@ import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
+    private final MenuService menuService;
 
     private static final int DEFAULT_PAGE_NUMBER = 0;
     private static final int MIN_PAGE_SIZE = 1;
@@ -30,8 +33,8 @@ public class StoreServiceImpl implements StoreService {
     private static final int MAX_PAGE_SIZE = 50;
 
     // 매장 생성
-    @Transactional
     @Override
+    @Transactional
     public StoreResponseDto createStore(StoreRequestDto requestDto, Long userId) {
         Users owner = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
@@ -54,6 +57,7 @@ public class StoreServiceImpl implements StoreService {
 
     // 매장 전체 조회
     @Override
+    @Transactional(readOnly = true)
     public Page<StoreListResponseDto> getStores(String storeName, Pageable pageable) {
         int page = pageable.getPageNumber();
         int size = pageable.getPageSize();
@@ -81,5 +85,44 @@ public class StoreServiceImpl implements StoreService {
 
         // 조회된 매장들을 StoreListResponseDto로 변환하여 반환
         return stores.map(StoreListResponseDto::from);
+    }
+
+    // 매장 단건 조회
+    @Override
+    @Transactional(readOnly = true)
+    public StoreResponseDto getStore(Long storeId) {
+        Stores store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        // 해당 매장의 등록된 메뉴 목록 조회
+        List<MenuReadResponseDto> menus = menuService.findAllMenu(storeId);
+
+        return StoreResponseDto.from(store, menus);
+    }
+
+    // 매장 수정
+    @Transactional
+    public StoreUpdateResponseDto updateStore(Long storeId, Long authUserId, StoreUpdateRequestDto requestDto) {
+        Stores store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        // 매장의 소유자가 현재 사용자와 일치하는지 검증
+        if (!store.getUsers().getId().equals(authUserId)) {
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
+
+        // 매장 정보를 요청 값으로 수정
+        store.updateStoreInfo(
+                requestDto.getStoreName(),
+                requestDto.getStoreAddress(),
+                requestDto.getStorePhoneNumber(),
+                requestDto.getOpenTime(),
+                requestDto.getEndTime(),
+                requestDto.getMinOrderPrice()
+        );
+
+        return StoreUpdateResponseDto.builder()
+                .id(store.getId())
+                .build();
     }
 }

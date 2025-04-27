@@ -1,8 +1,6 @@
 package com.delivery.igo.igo_delivery.api.store.controller;
 
-import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
+import com.delivery.igo.igo_delivery.api.store.dto.*;
 import com.delivery.igo.igo_delivery.api.store.service.StoreService;
 import com.delivery.igo.igo_delivery.common.annotation.Auth;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
@@ -45,6 +43,24 @@ public class StoreController {
         // 조회 결과를 PageResponseDto 형태로 변환
         PageResponseDto<StoreListResponseDto> response = PageResponseDto.from(storePage);
 
+        return ResponseEntity.ok(response);
+    }
+
+    // 매장 단건 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<StoreResponseDto> getStore(@PathVariable Long id) {
+        StoreResponseDto response = storeService.getStore(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // 매장 수정
+    @PutMapping("/{id}")
+    public ResponseEntity<StoreUpdateResponseDto> updateStore(
+            @PathVariable Long id,
+            @Auth AuthUser authUser,
+            @Valid @RequestBody StoreUpdateRequestDto requestDto
+    ) {
+        StoreUpdateResponseDto response = storeService.updateStore(id, authUser.getId(), requestDto);
         return ResponseEntity.ok(response);
     }
 }

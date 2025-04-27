@@ -38,9 +38,12 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<ReviewResponseDto>> findAllReviewByStore(@RequestParam Long storesId) {
-//        return new ResponseEntity<>(reviewService.findAllReviewByStore(storesId), HttpStatus.OK);
-//    }
+    @GetMapping
+    public ResponseEntity<List<ReviewResponseDto>> findAllReviewByStore(
+            @RequestParam Long storesId,
+            @RequestParam(defaultValue = "1") int minRating,
+            @RequestParam(defaultValue = "5") int maxRating) {
+        return new ResponseEntity<>(reviewService.findAllReviewByStore(storesId, minRating, maxRating), HttpStatus.OK);
+    }
 
 }

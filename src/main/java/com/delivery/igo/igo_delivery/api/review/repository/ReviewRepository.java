@@ -1,11 +1,12 @@
 package com.delivery.igo.igo_delivery.api.review.repository;
-
-import com.delivery.igo.igo_delivery.api.review.dto.ReviewResponseDto;
 import com.delivery.igo.igo_delivery.api.review.entity.Reviews;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Reviews, Long> {
-//    List<Reviews> findAllByStores_id(Long storesId);
+
+    @Query("SELECT r FROM Reviews r WHERE r.stores.id = :storeId AND r.rating BETWEEN :minRating AND :maxRating ORDER BY r.createdAt DESC")
+    List<Reviews> findAllByStoresIdAndRatingRange(Long storesId, int minRating, int maxRating);
 }
