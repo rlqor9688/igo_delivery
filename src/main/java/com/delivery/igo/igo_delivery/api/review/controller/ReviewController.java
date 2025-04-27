@@ -33,7 +33,7 @@ public class ReviewController {
             ReviewUpdateRequestDto requestDto
     ) {
         reviewService.updateReview(reviewId, authUser, requestDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

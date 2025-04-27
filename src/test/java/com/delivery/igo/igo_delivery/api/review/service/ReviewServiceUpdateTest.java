@@ -98,9 +98,62 @@ public class ReviewServiceUpdateTest {
     }
 
     @Test
+    void updateReview_유저가_없으면_USER_NOT_FOUND_예외를_던진다() {
+        // given
+        ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 내용", 3);
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.empty());
+
+        // when
+        GlobalException exception = assertThrows(GlobalException.class, () ->
+                reviewService.updateReview(review.getId(), authUser, requestDto));
+
+        // then
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    void updateReview_유저상태가_INACTIVE면_DELETED_USER_예외를_던진다() {
+        // given
+        ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 리뷰", 3);
+        Users user = Users.builder()
+                .id(1L)
+                .userStatus(UserStatus.INACTIVE)
+                .userRole(UserRole.CONSUMER)
+                .build();
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+
+        // when
+        GlobalException exception = assertThrows(GlobalException.class, ()->
+                reviewService.updateReview(review.getId(), authUser, requestDto));
+
+        // then
+        assertEquals(ErrorCode.DELETED_USER, exception.getErrorCode());
+    }
+
+    @Test
+    void updateReview_유저권한이_CONSUMER가_아니면_ROLE_CONSUMER_FORBIDDEN_예외를_던진다() {
+        // given
+        ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 내용", 2);
+        Users user = Users.builder()
+                .id(1L)
+                .userRole(UserRole.OWNER)
+                .userStatus(UserStatus.LIVE)
+                .build();
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
+
+        // when
+        GlobalException exception = assertThrows(GlobalException.class, () ->
+                reviewService.updateReview(review.getId(), authUser, requestDto));
+
+        // then
+        assertEquals(ErrorCode.ROLE_CONSUMER_FORBIDDEN, exception.getErrorCode());
+    }
+
+    @Test
     void updateReview_review가_존재하지_않으면_REVIEW_NOT_FOUND_예외를_던진다() {
         // given
         ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 내용", 4);
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
         given(reviewRepository.findById(review.getId())).willReturn(Optional.empty());
 
         // when
@@ -120,6 +173,7 @@ public class ReviewServiceUpdateTest {
                 .users(user)
                 .reviewStatus(ReviewStatus.DELETED)
                 .build();
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
         given(reviewRepository.findById(deletedReview.getId())).willReturn(Optional.of(deletedReview));
 
         // when
@@ -143,7 +197,7 @@ public class ReviewServiceUpdateTest {
                 .users(anotherUser)
                 .reviewStatus(ReviewStatus.LIVE)
                 .build();
-
+        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
         given(reviewRepository.findById(anotherReview.getId())).willReturn(Optional.of(anotherReview));
 
         // when
@@ -152,60 +206,5 @@ public class ReviewServiceUpdateTest {
 
         // then
         assertEquals(ErrorCode.FORBIDDEN, exception.getErrorCode());
-    }
-
-    @Test
-    void updateReview_유저가_없으면_USER_NOT_FOUND_예외를_던진다() {
-        // given
-        ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 내용", 3);
-        given(userRepository.findById(authUser.getId())).willReturn(Optional.empty());
-        given(reviewRepository.findById(review.getId())).willReturn(Optional.of(review));
-
-        // when
-        GlobalException exception = assertThrows(GlobalException.class, () ->
-                reviewService.updateReview(review.getId(), authUser, requestDto));
-
-        // then
-        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
-    }
-
-    @Test
-    void updateReview_유저상태가_INACTIVE면_DELETED_USER_예외를_던진다() {
-        // given
-        ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 리뷰", 3);
-        Users user = Users.builder()
-                .id(1L)
-                .userStatus(UserStatus.INACTIVE)
-                .userRole(UserRole.CONSUMER)
-                .build();
-        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
-        given(reviewRepository.findById(review.getId())).willReturn(Optional.of(review));
-
-        // when
-        GlobalException exception = assertThrows(GlobalException.class, ()->
-                reviewService.updateReview(review.getId(), authUser, requestDto));
-
-        // then
-        assertEquals(ErrorCode.DELETED_USER, exception.getErrorCode());
-    }
-
-    @Test
-    void updateReview_유저권한이_CONSUMER가_아니면_ROLE_CONSUMER_FORBIDDEN_예외를_던진다() {
-        // given
-        ReviewUpdateRequestDto requestDto = new ReviewUpdateRequestDto("수정 내용", 2);
-        Users user = Users.builder()
-                .id(1L)
-                .userRole(UserRole.OWNER)
-                .userStatus(UserStatus.LIVE)
-                .build();
-        given(userRepository.findById(authUser.getId())).willReturn(Optional.of(user));
-        given(reviewRepository.findById(review.getId())).willReturn(Optional.of(review));
-
-        // when
-        GlobalException exception = assertThrows(GlobalException.class, () ->
-                reviewService.updateReview(review.getId(), authUser, requestDto));
-
-        // then
-        assertEquals(ErrorCode.ROLE_CONSUMER_FORBIDDEN, exception.getErrorCode());
     }
 }

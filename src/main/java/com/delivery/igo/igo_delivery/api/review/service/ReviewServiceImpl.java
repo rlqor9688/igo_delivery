@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
         // DB에서 유저 조회 + 유효성 검증(UserStatus= LIVE, UserRole = CONSUMER)
         Users findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-        validateUser(findUser);
+        validateUserDeletionAndRole(findUser);
 
         // DB에서 주문 조회 + 본인 확인 + 주문 상태 검증
         Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
@@ -98,6 +98,11 @@ public class ReviewServiceImpl implements ReviewService {
             throw new GlobalException(ErrorCode.USER_NOT_FOUND);
         }
 
+        // 로그인 유저 DB 조회 + 상태(LIVE), 권한(CONSUMER) 확인
+        Users findUser = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        validateUserDeletionAndRole(findUser);
+
         // 입력받은 Review DB 존재/ 활성화 여부 조회 + 로그인 유저 일치 여부 확인
         Reviews findReview = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new GlobalException(ErrorCode.REVIEW_NOT_FOUND));
@@ -105,11 +110,6 @@ public class ReviewServiceImpl implements ReviewService {
             throw new GlobalException(ErrorCode.REVIEW_IS_DELETED);
         }
         validateReviewAccess(findReview, authUser);
-
-        // 로그인 유저 DB 조회 + 상태(LIVE), 권한(CONSUMER) 확인
-        Users findUser = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-        validateUser(findUser);
 
         // 리뷰 수정 및 저장
         findReview.update(requestDto.getContent(), requestDto.getRating());
@@ -121,7 +121,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // 유저 유효성 검증(UserStatus=LIVE, UserRole = CONSUMER)
-    private void validateUser(Users user) {
+    private void validateUserDeletionAndRole(Users user) {
         user.validateDelete();
         user.validateConsumer();
     }
