@@ -319,4 +319,85 @@ public class StoreServiceTest {
                 .isInstanceOf(GlobalException.class)
                 .hasMessageContaining(ErrorCode.STORE_NOT_FOUND.getMessage());
     }
+
+    @Test
+    void 매장_폐업_성공() {
+
+        // given
+        Users owner = Users.builder()
+                .id(1L)
+                .email("testowner1@email.com")
+                .nickname("초코라떼")
+                .userRole(UserRole.OWNER)
+                .build();
+
+        Stores store = Stores.builder()
+                .id(1L)
+                .storeName("초코라떼가제일좋아")
+                .storeAddress("인천시 미추홀구")
+                .storePhoneNumber("010-8282-8282")
+                .openTime(Time.valueOf(LocalTime.of(8, 0)))
+                .endTime(Time.valueOf(LocalTime.of(22, 0)))
+                .minOrderPrice(10000)
+                .storeStatus(StoreStatus.LIVE)
+                .users(owner)
+                .build();
+
+        given(storeRepository.findById(1L)).willReturn(Optional.of(store));
+
+        // when
+        storeService.closeStore(1L, owner.getId());
+
+        // then
+        assertThat(store.getStoreStatus()).isEqualTo(StoreStatus.CLOSED);
+    }
+
+    @Test
+    void 매장_폐업_실패_본인_매장_아님() {
+
+        // given
+        Users owner = Users.builder()
+                .id(1L)
+                .email("testowner1@email.com")
+                .nickname("초코라떼")
+                .userRole(UserRole.OWNER)
+                .build();
+
+        Users otherUser = Users.builder()
+                .id(2L)
+                .email("other@email.com")
+                .nickname("교촌치킨")
+                .userRole(UserRole.OWNER)
+                .build();
+
+        Stores store = Stores.builder()
+                .id(1L)
+                .storeName("초코라떼가제일좋아")
+                .storeAddress("인천시 미추홀구")
+                .storePhoneNumber("010-8282-8282")
+                .openTime(Time.valueOf(LocalTime.of(8, 0)))
+                .endTime(Time.valueOf(LocalTime.of(22, 0)))
+                .minOrderPrice(10000)
+                .storeStatus(StoreStatus.LIVE)
+                .users(owner)
+                .build();
+
+        given(storeRepository.findById(1L)).willReturn(Optional.of(store));
+
+        // when, then
+        assertThatThrownBy(() -> storeService.closeStore(1L, otherUser.getId()))
+                .isInstanceOf(GlobalException.class)
+                .hasMessage(ErrorCode.STORE_OWNER_MISMATCH.getMessage());
+    }
+
+    @Test
+    void 매장_폐업_실패_매장_없음() {
+        // given
+        given(storeRepository.findById(1L)).willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() -> storeService.closeStore(1L, 1L))
+                .isInstanceOf(GlobalException.class)
+                .hasMessage(ErrorCode.STORE_NOT_FOUND.getMessage());
+    }
 }

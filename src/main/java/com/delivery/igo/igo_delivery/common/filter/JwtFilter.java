@@ -77,9 +77,12 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token", e);
             setErrorResponse(response, ErrorCode.JWT_EXPIRED, url);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            log.error("클라이언트 관련 예외 발생", e);
+            setErrorResponse(response, ErrorCode.BAD_REQUEST, url);
         } catch (Exception e) {
-            log.error("Invalid JWT token", e);
-            setErrorResponse(response, ErrorCode.JWT_INVALID_TOKEN, url);
+            log.error("그 외 알수없는 예외 발생", e);
+            setErrorResponse(response, ErrorCode.INTERNAL_SERVER_ERROR, url);
         }
     }
 

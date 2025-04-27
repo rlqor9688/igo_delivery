@@ -147,4 +147,6 @@ class MenuServiceCreateTest {
         verify(userRepository).findById(otherAuthUser.getId());
         verify(storeRepository, never()).findById(storeId);
     }
+
+
 }

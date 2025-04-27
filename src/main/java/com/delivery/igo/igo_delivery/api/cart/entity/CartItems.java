@@ -1,7 +1,6 @@
 package com.delivery.igo.igo_delivery.api.cart.entity;
 
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
-import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,5 +47,17 @@ public class CartItems {
 
     public long totalPrice() {
         return cartPrice * cartQuantity.longValue();
+    }
+
+    public void increaseQuantity() {
+        cartQuantity++;
+    }
+
+    public void decreaseQuantity() {
+        cartQuantity--;
+    }
+
+    public boolean isQuantityZero() {
+        return cartQuantity <= 0;
     }
 }

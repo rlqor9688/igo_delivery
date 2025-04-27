@@ -17,4 +17,7 @@ public interface StoreService {
 
     // 매장 수정
     StoreUpdateResponseDto updateStore(Long storeId, Long authUserId, StoreUpdateRequestDto requestDto);
+
+    // 매장 폐업
+    void closeStore(Long storeId, Long authUserId);
 }

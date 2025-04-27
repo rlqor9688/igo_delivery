@@ -81,6 +81,19 @@ public class MenuServiceImpl implements MenuService {
         return MenuReadResponseDto.from(findMenu);
     }
 
+    @Override
+    @Transactional
+    public void deleteMenu(AuthUser authUser, Long storesId, Long id) {
+
+        Users user = getUserWithAccessCheck(authUser.getId());
+
+        Stores store = getStoreWithAccessCheck(storesId, user);
+
+        Menus menu = getMenuWithAccessCheck(id, storesId);
+
+        menu.delete();
+    }
+
     private Users getUserWithAccessCheck(Long id) {
 
         Users user = userRepository.findById(id)

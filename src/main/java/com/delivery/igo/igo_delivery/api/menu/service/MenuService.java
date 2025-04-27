@@ -15,4 +15,6 @@ public interface MenuService {
     List<MenuReadResponseDto> findAllMenu(Long storesId);
 
     MenuReadResponseDto findMenuById(Long storesId, Long id);
+
+    void deleteMenu(AuthUser authUser, Long storesId, Long id);
 }

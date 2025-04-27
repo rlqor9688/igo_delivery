@@ -11,8 +11,11 @@ public enum ErrorCode {
 
     // Common -> default 용도
     DUPLICATED(HttpStatus.BAD_REQUEST, "중복 되었습니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청값 입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾을 수 없습니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 서버 오류 발생, 확인 후 조치하겠습니다."),
+
 
     // Auth
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "로그인 실패, 아이디나 비밀번호를 확인해 주세요."),
@@ -56,8 +59,9 @@ public enum ErrorCode {
     ROLE_CONSUMER_FORBIDDEN(HttpStatus.UNAUTHORIZED, "주문 고객이 아닙니다."),
     ROLE_OWNER_FORBIDDEN(HttpStatus.UNAUTHORIZED, "매장 사장님이 아닙니다."),
 
-    // CartItem
-    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니를 찾을 수 없습니다."),
+    // CartItem, Cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니를 찾을 수 없습니다."),
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 담긴 상품을 찾을 수 없습니다."),
 
     // Store
     NOT_OWNER(HttpStatus.FORBIDDEN, "사장님 권한이 아닙니다."),
