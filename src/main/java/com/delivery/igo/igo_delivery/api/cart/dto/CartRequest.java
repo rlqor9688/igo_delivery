@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CartRequest {
 
-    @NotNull(message = "{menu.id.notblank}")
+    @NotNull(message = "{menu.id.notnull}")
     private Long menuId;
 
     @NotNull(message ="{cart.quantity.notnull}")
