@@ -13,4 +13,6 @@ public interface MenuService {
     MenuResponseDto updateMenu(AuthUser authUser, Long storesId, Long id, MenuRequestDto requestDto);
 
     List<MenuReadResponseDto> findAllMenu(Long storesId);
+
+    MenuReadResponseDto findMenuById(Long storesId, Long id);
 }
