@@ -1,9 +1,12 @@
 package com.delivery.igo.igo_delivery.api.cart.service;
 
 import com.delivery.igo.igo_delivery.api.cart.dto.request.CreateCartRequestDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.request.UpdateCartItemRequestDto;
 import com.delivery.igo.igo_delivery.api.cart.dto.response.CartItemResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.dto.response.CreateCartResponseDto;
 import com.delivery.igo.igo_delivery.api.cart.dto.response.FindAllCartsResponseDto;
+import com.delivery.igo.igo_delivery.api.cart.dto.response.UpdateCartItemResponseDto;
+import com.delivery.igo.igo_delivery.api.cart.entity.CartItemQuantityType;
 import com.delivery.igo.igo_delivery.api.cart.entity.CartItems;
 import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
@@ -91,6 +94,24 @@ public class CartServiceImpl implements CartService{
         long totalCartPrice = findCartItems.stream().mapToLong(CartItems::totalPrice).sum();
 
         return FindAllCartsResponseDto.of(carts.getId(), totalCartPrice, responseCartItems);
+    }
+
+    @Override
+    @Transactional
+    public UpdateCartItemResponseDto updateCartItem(Long cartItemId, AuthUser authUser, UpdateCartItemRequestDto requestDto) {
+
+        Users users = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        users.validateAccess(authUser.getId());
+        users.validateConsumer();
+
+        CartItems findCartItem = cartItemsRepository.findById(cartItemId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.CART_ITEM_NOT_FOUND));
+
+        CartItemQuantityType actionType = requestDto.getActionType();
+        actionType.apply(findCartItem, cartItemsRepository);
+
+        return new UpdateCartItemResponseDto(findCartItem.getId(), findCartItem.getCartQuantity());
     }
 
 }

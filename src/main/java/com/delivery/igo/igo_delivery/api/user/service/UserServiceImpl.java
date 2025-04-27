@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
             throw new GlobalException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
         Carts carts = cartRepository.findByUsers(users)
-                .orElseThrow(() -> new GlobalException(ErrorCode.CART_ITEM_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(ErrorCode.CART_NOT_FOUND));
 
         cartItemsRepository.deleteAllByCarts(carts);
         cartRepository.delete(carts);

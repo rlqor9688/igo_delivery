@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService{
         // 장바구니 물건 목록 호출
         List<CartItems> cartItems = cartItemsRepository.findAllByCarts(carts);
         // 장바구니가 비어있을 경우 에러 출력
-        if (cartItems.isEmpty()) throw new GlobalException(ErrorCode.CART_ITEM_NOT_FOUND);
+        if (cartItems.isEmpty()) throw new GlobalException(ErrorCode.CART_NOT_FOUND);
 
         // 해당 매장 정보 호출
         Stores stores = cartItems.get(0).getMenus().getStores();
