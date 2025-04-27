@@ -109,7 +109,7 @@ public class ReviewServiceImpl implements ReviewService {
         Reviews findReview = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new GlobalException(ErrorCode.REVIEW_NOT_FOUND));
         if (!Objects.equals(findReview.getReviewStatus(), ReviewStatus.LIVE)) {
-            throw new GlobalException(ErrorCode.REVIEW_IS_DELETED);
+            throw new GlobalException(ErrorCode.REVIEW_ALREADY_DELETED);
         }
         validateReviewAccess(findReview, authUser);
 
@@ -132,6 +132,31 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewList.stream()
                 .map(ReviewResponseDto::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteReview(AuthUser authUser, Long reviewId) {
+        // authUser NPE 방지
+        if (authUser == null) {
+            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        // DB에서 유저 조회 + 유효성 검증(UserStatus= LIVE, UserRole = CONSUMER)
+        Users findUser = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        validateUserDeletionAndRole(findUser);
+
+        // 입력받은 Review DB 존재/ 활성화 여부 조회 + 로그인 유저 일치 여부 확인
+        Reviews findReview = reviewRepository.findById(reviewId)
+                .orElseThrow(()-> new GlobalException(ErrorCode.REVIEW_NOT_FOUND));
+        if (!Objects.equals(findReview.getReviewStatus(), ReviewStatus.LIVE)) {
+            throw new GlobalException(ErrorCode.REVIEW_ALREADY_DELETED);
+        }
+        validateReviewAccess(findReview, authUser);
+
+        // 리뷰 삭제
+        findReview.delete();
     }
 
     // 리뷰 수정 권한 검증(작성자=로그인유저)

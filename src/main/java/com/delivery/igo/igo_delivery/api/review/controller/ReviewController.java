@@ -46,4 +46,10 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.findAllReviewByStore(storesId, minRating, maxRating), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{reviewsId}")
+    public ResponseEntity<Void> deleteReview(@Auth AuthUser authUser, @PathVariable Long reviewsId) {
+        reviewService.deleteReview(authUser, reviewsId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }
