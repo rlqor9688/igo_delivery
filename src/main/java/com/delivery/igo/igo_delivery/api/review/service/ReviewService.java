@@ -11,5 +11,5 @@ public interface ReviewService {
     ReviewResponseDto createReview(AuthUser authUser, ReviewRequestDto reviewRequestDto);
     void updateReview(Long reviewId, AuthUser authUser, ReviewUpdateRequestDto requestDto);
     List<ReviewResponseDto> findAllReviewByStore(Long storeId, int minRating, int maxRating);
-//    void deleteReview(Long reviewId, AuthUser authUser);
+    void deleteReview(AuthUser authUser, Long reviewId);
 }
