@@ -7,6 +7,8 @@ import com.delivery.igo.igo_delivery.api.order.repository.OrderItemsRepository;
 import com.delivery.igo.igo_delivery.api.order.repository.OrderRepository;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewRequestDto;
 import com.delivery.igo.igo_delivery.api.review.dto.ReviewResponseDto;
+import com.delivery.igo.igo_delivery.api.review.dto.ReviewUpdateRequestDto;
+import com.delivery.igo.igo_delivery.api.review.entity.ReviewStatus;
 import com.delivery.igo.igo_delivery.api.review.entity.Reviews;
 import com.delivery.igo.igo_delivery.api.review.repository.ReviewRepository;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -50,8 +53,7 @@ public class ReviewServiceImpl implements ReviewService {
         // DB에서 유저 조회 + 유효성 검증(UserStatus= LIVE, UserRole = CONSUMER)
         Users findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-        findUser.validateDelete();
-        findUser.validateConsumer();
+        validateUserDeletionAndRole(findUser);
 
         // DB에서 주문 조회 + 본인 확인 + 주문 상태 검증
         Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
@@ -89,28 +91,48 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewResponseDto.from(savedReview);
     }
 
+    @Override
+    @Transactional
+    public void updateReview(Long reviewId, AuthUser authUser, ReviewUpdateRequestDto requestDto) {
+        // authUser NPE 방지
+        if (authUser == null) {
+            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        // 로그인 유저 DB 조회 + 상태(LIVE), 권한(CONSUMER) 확인
+        Users findUser = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        validateUserDeletionAndRole(findUser);
+
+        // 입력받은 Review DB 존재/ 활성화 여부 조회 + 로그인 유저 일치 여부 확인
+        Reviews findReview = reviewRepository.findById(reviewId)
+                .orElseThrow(()-> new GlobalException(ErrorCode.REVIEW_NOT_FOUND));
+        if (!Objects.equals(findReview.getReviewStatus(), ReviewStatus.LIVE)) {
+            throw new GlobalException(ErrorCode.REVIEW_IS_DELETED);
+        }
+        validateReviewAccess(findReview, authUser);
+
+        // 리뷰 수정 및 저장
+        findReview.update(requestDto.getContent(), requestDto.getRating());
+    }
+
 //    @Override
-//    @Transactional
-//    public void updateReview(Long reviewId, AuthUser authUser, ReviewUpdateRequestDto requestDto) {
-//        // authUser NPE 방지
-//        if (authUser == null) {
-//            throw new GlobalException(ErrorCode.USER_NOT_FOUND);
-//        }
+//    public List<ReviewResponseDto> findAllReviewByStore(Long storesId) {
+//        List<Reviews> reviewList = reviewRepository.findAllByStores_id(storesId);
 //
-//        // 입력받은 Review, User의 DB 존재 여부 확인
-//        Reviews findReview = reviewRepository.findById(reviewId)
-//                .orElseThrow(()-> new GlobalException(ErrorCode.REVIEW_NOT_FOUND));
-//
-//        Users findUser = userRepository.findById(authUser.getId())
-//                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
-//
-//
-//        // 유효한 유저인지 검증(UserStatus= LIVE, UserRole = CONSUMER)
-//        findUser.validateDelete();
-//        findUser.validateConsumer();
-//
-//        // 입력받은 주문 id로 조회한 userId(리뷰 작성자)와 API를 요청한(로그인) 유저의 userId가 일치하는지 확인
-//        findReview.getUsers().validateAccess(authUser);
-//
+//        return reviewList.stream()
+//                .map(ReviewResponseDto::from)
+//                .collect(Collectors.toList());
 //    }
+
+    // 리뷰 수정 권한 검증(작성자=로그인유저)
+    private void validateReviewAccess(Reviews review, AuthUser authUser) {
+        review.getUsers().validateAccess(authUser.getId());
+    }
+
+    // 유저 유효성 검증(UserStatus=LIVE, UserRole = CONSUMER)
+    private void validateUserDeletionAndRole(Users user) {
+        user.validateDelete();
+        user.validateConsumer();
+    }
 }
