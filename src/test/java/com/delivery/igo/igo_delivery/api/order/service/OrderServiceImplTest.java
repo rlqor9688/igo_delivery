@@ -5,10 +5,7 @@ import com.delivery.igo.igo_delivery.api.cart.entity.Carts;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartItemsRepository;
 import com.delivery.igo.igo_delivery.api.cart.repository.CartRepository;
 import com.delivery.igo.igo_delivery.api.menu.entity.Menus;
-import com.delivery.igo.igo_delivery.api.order.dto.ChangeOrderStatusRequest;
-import com.delivery.igo.igo_delivery.api.order.dto.ChangeOrderStatusResponse;
-import com.delivery.igo.igo_delivery.api.order.dto.CreateOrderRequest;
-import com.delivery.igo.igo_delivery.api.order.dto.OrderResponse;
+import com.delivery.igo.igo_delivery.api.order.dto.*;
 import com.delivery.igo.igo_delivery.api.order.entity.OrderItems;
 import com.delivery.igo.igo_delivery.api.order.entity.OrderStatus;
 import com.delivery.igo.igo_delivery.api.order.entity.Orders;
@@ -19,12 +16,18 @@ import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
 import com.delivery.igo.igo_delivery.common.dto.AuthUser;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Time;
 import java.time.LocalTime;
@@ -38,9 +41,6 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
-
-    @InjectMocks
-    private OrderServiceImpl orderService;
 
     @Mock
     private UserRepository userRepository;
@@ -57,12 +57,48 @@ class OrderServiceTest {
     @Mock
     private OrderItemsRepository orderItemsRepository;
 
-    @Test
-    void 주문_생성_성공() {
-        // given
-        Long userId = 1L;
-        AuthUser authUser = new AuthUser(userId, "test@email.com", "테스트", UserRole.CONSUMER);
-        CreateOrderRequest request = new CreateOrderRequest("서울시 마포구");
+    @InjectMocks
+    private OrderServiceImpl orderService;
+    private AuthUser authConsumer;
+    private AuthUser authOwner;
+    private AuthUser otherConsumer;
+    private Users users;
+    private Users owners;
+    private Users otherUser;
+    private Carts carts;
+    private Menus menus;
+    private CartItems cartItems;
+    private Orders orders;
+    private OrderItems orderItems;
+    private Stores stores;
+    private List<OrderItems> orderItemsList;
+    private Pageable pageable;
+
+    @BeforeEach
+    public void setUp(){
+        authConsumer = new AuthUser(1L,"test1@email.com", "테스트유저", UserRole.CONSUMER);
+        authOwner = new AuthUser(2L,"test2@email.com", "테스트매장주", UserRole.OWNER);
+        otherConsumer = new AuthUser(3L, "test3@email.com", "테스트유저2", UserRole.CONSUMER);
+        users = Users.builder()
+                .id(1L)
+                .email("test1@email.com")
+                .userRole(UserRole.CONSUMER)
+                .nickname("테스트유저")
+                .build();
+
+        owners = Users.builder()
+                .id(2L)
+                .email("test2@email.com")
+                .userRole(UserRole.OWNER)
+                .nickname("테스트매장주")
+                .build();
+
+        otherUser = Users.builder()
+                .id(3L)
+                .email("test3@email.com")
+                .userRole(UserRole.CONSUMER)
+                .nickname("테스트유저2")
+                .build();
 
         LocalTime localOpenTime = LocalTime.of(0, 1);
         LocalTime localEndTime = LocalTime.of(23, 59);
@@ -71,44 +107,62 @@ class OrderServiceTest {
         Time openTime = Time.valueOf(localOpenTime);
         Time endTime = Time.valueOf(localEndTime);
 
-        Users users = Users.builder()
-                .id(userId)
-                .email("test@email.com")
-                .userRole(UserRole.CONSUMER)
-                .nickname("테스트")
-                .build();
+        stores = Stores.builder()
+                .id(1L)
+                .users(owners)
+                .openTime(openTime)
+                .endTime(endTime)
+                .minOrderPrice(15000).build();
 
-        Stores store = Stores.builder().users(users).openTime(openTime).endTime(endTime).minOrderPrice(15000).build();
-
-        Carts carts = Carts.builder()
-                .users(users)
-                .build();
-
-        Menus menus = Menus.builder()
+        menus = Menus.builder()
                 .id(1L)
                 .menuName("치킨")
                 .price(15000L)
-                .stores(store)
+                .stores(stores)
                 .build();
 
-        CartItems cartItem = CartItems.builder()
+        carts = Carts.builder()
+                .users(users)
+                .build();
+
+        cartItems = CartItems.builder()
                 .menus(menus)
                 .carts(carts)
                 .cartPrice(menus.getPrice())
                 .cartQuantity(2)
                 .build();
 
-        Orders orders = new Orders(users, request.getOrderAddress());
+        orders = Orders.builder()
+                .id(1L)
+                .users(users)
+                .orderStatus(OrderStatus.WAITING)
+                .orderAddress("주소지").build();
+
+        orderItems = OrderItems.builder()
+                .menus(menus)
+                .orderQuantity(2)
+                .orderItemPrice(15000L)
+                .orders(orders)
+                .build();
+        orderItemsList = List.of(orderItems);
+        pageable = PageRequest.of(0, 5);
+    }
+
+    @Test
+    void 주문_생성_성공() {
+        // given
+        Long userId = 1L;
+        CreateOrderRequest request = new CreateOrderRequest("서울시 마포구");
 
         given(userRepository.findById(userId)).willReturn(Optional.of(users));
         given(cartRepository.findByUsersId(userId)).willReturn(carts);
-        given(cartItemsRepository.findAllByCarts(carts)).willReturn(List.of(cartItem));
+        given(cartItemsRepository.findAllByCarts(carts)).willReturn(List.of(cartItems));
         given(orderRepository.save(any(Orders.class))).willReturn(orders);
         given(orderItemsRepository.saveAll(anyList())).willReturn(null); // void 리턴
 
         // when
 
-        OrderResponse response = orderService.createOrder(authUser, request);
+        OrderResponse response = orderService.createOrder(authConsumer, request);
 
         // then
         assertNotNull(response);
@@ -122,17 +176,14 @@ class OrderServiceTest {
         // given
         Long userId = 1L;
         Long orderId = 1L;
-        Users user = Users.builder().id(userId).build();
-        Orders order = new Orders(user, "주소지");
+
         ChangeOrderStatusRequest request = new ChangeOrderStatusRequest("CANCELLED");
 
-        AuthUser authUser = new AuthUser(userId, "email@gmail.com", "테스트닉네임", UserRole.CONSUMER);
-
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
+        given(userRepository.findById(userId)).willReturn(Optional.of(users));
+        given(orderRepository.findById(orderId)).willReturn(Optional.of(orders));
 
         // when
-        ChangeOrderStatusResponse response = orderService.changeOrderStatus(authUser, request, orderId);
+        ChangeOrderStatusResponse response = orderService.changeOrderStatus(authConsumer, request, orderId);
 
         // then
         assertNotNull(response);
@@ -143,24 +194,16 @@ class OrderServiceTest {
     @Test
     void 매장주인_주문_상태_변경_성공() {
         // given
-        Long ownerId = 1L;
+        Long ownerId = 2L;
         Long orderId = 1L;
-
-        Users owner = Users.builder().id(ownerId).build();
-        Stores store = Stores.builder().users(owner).build();
-        Menus menu = Menus.builder().stores(store).build();
-        Orders order = new Orders(owner,"주소지");
-        OrderItems item = OrderItems.builder().menus(menu).orders(order).build();
-
-        AuthUser authUser = new AuthUser(ownerId, "email@gmail.com", "테스트닉네임", UserRole.OWNER);
         ChangeOrderStatusRequest request = new ChangeOrderStatusRequest("COOKING");
 
-        given(userRepository.findById(ownerId)).willReturn(Optional.of(owner));
-        given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
-        given(orderItemsRepository.findByOrdersId(orderId)).willReturn(List.of(item));
+        given(userRepository.findById(ownerId)).willReturn(Optional.of(owners));
+        given(orderRepository.findById(orderId)).willReturn(Optional.of(orders));
+        given(orderItemsRepository.findByOrdersId(orderId)).willReturn(List.of(orderItems));
 
         // when
-        ChangeOrderStatusResponse response = orderService.changeOrderStatus(authUser, request, orderId);
+        ChangeOrderStatusResponse response = orderService.changeOrderStatus(authOwner, request, orders.getId());
 
         // then
         assertNotNull(response);
@@ -168,57 +211,64 @@ class OrderServiceTest {
     }
 
     @Test
+    void 주문_상태_변경_권한없음() {
+        Long userId = 1L;
+        Long orderId = 1L;
+        // given
+        ChangeOrderStatusRequest request = new ChangeOrderStatusRequest("COOKING");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(users));
+        given(orderRepository.findById(orderId)).willReturn(Optional.of(orders));
+
+        GlobalException exception = assertThrows(GlobalException.class, () -> orderService.changeOrderStatus(authConsumer, request,orders.getId()));
+        assertEquals(ErrorCode.CONSUMER_CANNOT_CHANGE_STATUS,exception.getErrorCode());
+
+    }
+
+    @Test
     void 주문_조회_성공() {
         // given
         Long ordersId = 1L;
-        Long userId = 1L;
 
-        Users user = Users.builder().id(userId).build();
-        Orders order = new Orders(user, "주소지");
-        OrderItems orderItem = OrderItems.builder()
-                .menus(Menus.builder().stores(Stores.builder().users(user).build()).build())
-                .orderQuantity(2)
-                .orders(order)
-                .build();
-
-        List<OrderItems> orderItems = List.of(orderItem);
-
-        AuthUser authUser = new AuthUser(userId, "email@gmail.com", "테스트닉네임", UserRole.CONSUMER);
-
-        given(orderRepository.findById(ordersId)).willReturn(Optional.of(order));
-        given(orderItemsRepository.findByOrdersId(ordersId)).willReturn(orderItems);
+        given(orderRepository.findById(ordersId)).willReturn(Optional.of(orders));
+        given(orderItemsRepository.findByOrdersId(ordersId)).willReturn(orderItemsList);
 
         // when
-        OrderResponse response = orderService.findOrder(authUser, ordersId);
+        OrderResponse response = orderService.findOrder(authConsumer, ordersId);
 
         // then
         assertNotNull(response);
-        assertEquals(order.getId(), response.getId());
+        assertEquals(orders.getId(), response.getId());
     }
 
     @Test
     void 주문_조회_권한_없음_실패() {
         // given
         Long ordersId = 1L;
-        Long otherUserId = 2L;
 
-        Users user = Users.builder().id(ordersId).build();
-        Orders order = new Orders(user, "주소지");
-        OrderItems orderItem = OrderItems.builder()
-                .menus(Menus.builder().stores(Stores.builder().users(user).build()).build())
-                .orders(order)
-                .orderQuantity(2)
-                .build();
-
-        List<OrderItems> orderItems = List.of(orderItem);
-
-        AuthUser authUser = new AuthUser(otherUserId, "email@gmail.com", "테스트닉네임", UserRole.CONSUMER);
-
-        given(orderRepository.findById(ordersId)).willReturn(Optional.of(order));
-        given(orderItemsRepository.findByOrdersId(ordersId)).willReturn(orderItems);
+        given(orderRepository.findById(ordersId)).willReturn(Optional.of(orders));
+        given(orderItemsRepository.findByOrdersId(ordersId)).willReturn(orderItemsList);
 
         // when & then
-        assertThrows(GlobalException.class, () -> orderService.findOrder(authUser, ordersId));
+        GlobalException exception = assertThrows(GlobalException.class, () -> orderService.findOrder(otherConsumer, ordersId));
+        assertEquals(ErrorCode.FORBIDDEN,exception.getErrorCode());
     }
 
+    @Test
+    void 주문_목록_조회_고객_성공() {
+        Long userId = 1L;
+        Long orderId = 1L;
+        // given
+        given(userRepository.findById(userId)).willReturn(Optional.of(users));
+        given(orderRepository.findByUsersId(userId, pageable)).willReturn(new PageImpl<>(List.of(orders)));
+        given(orderItemsRepository.findByOrdersId(orderId)).willReturn(List.of(orderItems));
+
+        // when
+        Page<OrderListResponse> result = orderService.findOrderList(1L, pageable);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(1, result.getContent().size());
+    }
 }
