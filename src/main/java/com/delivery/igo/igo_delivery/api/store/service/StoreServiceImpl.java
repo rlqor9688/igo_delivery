@@ -1,5 +1,7 @@
 package com.delivery.igo.igo_delivery.api.store.service;
 
+import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuReadResponseDto;
+import com.delivery.igo.igo_delivery.api.menu.service.MenuService;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
@@ -17,12 +19,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
+    private final MenuService menuService;
 
     private static final int DEFAULT_PAGE_NUMBER = 0;
     private static final int MIN_PAGE_SIZE = 1;
@@ -90,6 +95,10 @@ public class StoreServiceImpl implements StoreService {
     public StoreResponseDto getStore(Long storeId) {
         Stores store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
-        return StoreResponseDto.from(store);
+
+        // 해당 매장의 등록된 메뉴 목록 조회
+        List<MenuReadResponseDto> menus = menuService.findAllMenu(storeId);
+
+        return StoreResponseDto.from(store, menus);
     }
 }
