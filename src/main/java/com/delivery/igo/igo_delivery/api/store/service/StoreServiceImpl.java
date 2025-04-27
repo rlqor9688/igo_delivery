@@ -2,9 +2,7 @@ package com.delivery.igo.igo_delivery.api.store.service;
 
 import com.delivery.igo.igo_delivery.api.menu.dto.response.MenuReadResponseDto;
 import com.delivery.igo.igo_delivery.api.menu.service.MenuService;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
+import com.delivery.igo.igo_delivery.api.store.dto.*;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
@@ -100,5 +98,31 @@ public class StoreServiceImpl implements StoreService {
         List<MenuReadResponseDto> menus = menuService.findAllMenu(storeId);
 
         return StoreResponseDto.from(store, menus);
+    }
+
+    // 매장 수정
+    @Transactional
+    public StoreUpdateResponseDto updateStore(Long storeId, Long authUserId, StoreUpdateRequestDto requestDto) {
+        Stores store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        // 매장의 소유자가 현재 사용자와 일치하는지 검증
+        if (!store.getUsers().getId().equals(authUserId)) {
+            throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
+        }
+
+        // 매장 정보를 요청 값으로 수정
+        store.updateStoreInfo(
+                requestDto.getStoreName(),
+                requestDto.getStoreAddress(),
+                requestDto.getStorePhoneNumber(),
+                requestDto.getOpenTime(),
+                requestDto.getEndTime(),
+                requestDto.getMinOrderPrice()
+        );
+
+        return StoreUpdateResponseDto.builder()
+                .id(store.getId())
+                .build();
     }
 }

@@ -1,8 +1,7 @@
 package com.delivery.igo.igo_delivery.api.store.service;
 
-import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
-import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
+import com.delivery.igo.igo_delivery.api.menu.service.MenuService;
+import com.delivery.igo.igo_delivery.api.store.dto.*;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
@@ -42,11 +41,14 @@ public class StoreServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private MenuService menuService;
+
     @InjectMocks
     private StoreServiceImpl storeService;
 
     @Test
-    void 매장_정상_생성() {
+    void 매장_생성_성공() {
 
         // given
         Users owner = Users.builder()
@@ -99,7 +101,7 @@ public class StoreServiceTest {
     }
 
     @Test
-    void 매장_전체_조회_검색어_있음() {
+    void 매장_전체_조회_성공_검색어_있음() {
 
         // given
         Users owner = Users.builder()
@@ -135,7 +137,7 @@ public class StoreServiceTest {
     }
 
     @Test
-    void 매장_전체_조회_검색어_없음() {
+    void 매장_전체_조회_성공_검색어_없음() {
         // given
         Stores store1 = Stores.builder().id(1L).storeName("초코라떼").minOrderPrice(10000).build();
         Stores store2 = Stores.builder().id(2L).storeName("설빙").minOrderPrice(19000).build();
@@ -156,7 +158,7 @@ public class StoreServiceTest {
     }
 
     @Test
-    void 매장_전체_조회_검색어_매장_없음() {
+    void 매장_전체_조회_성공_검색어_매장_없음() {
         // given
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Stores> emptyPage = new PageImpl<>(List.of(), pageable, 0);
@@ -188,6 +190,7 @@ public class StoreServiceTest {
                 .build();
 
         given(storeRepository.findById(1L)).willReturn(Optional.of(store));
+        given(menuService.findAllMenu(1L)).willReturn(List.of());
 
         // when
         StoreResponseDto response = storeService.getStore(1L);
@@ -199,7 +202,7 @@ public class StoreServiceTest {
     }
 
     @Test
-    void 매장_단건_조회_매장_없음() {
+    void 매장_단건_조회_실패_매장_없음() {
 
         // given
         given(storeRepository.findById(9999L)).willReturn(Optional.empty());
@@ -208,5 +211,112 @@ public class StoreServiceTest {
         assertThatThrownBy(() -> storeService.getStore(9999L))
                 .isInstanceOf(GlobalException.class)
                 .hasMessage(ErrorCode.STORE_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    void 매장_수정_성공() {
+
+        // given
+        Users owner = Users.builder()
+                .id(1L)
+                .email("testowner1@email.com")
+                .nickname("초코라떼")
+                .userRole(UserRole.OWNER)
+                .build();
+
+        Stores store = Stores.builder()
+                .id(1L)
+                .users(owner)
+                .storeName("초코라떼가제일좋아")
+                .storeAddress("인천시 미추홀구")
+                .storePhoneNumber("010-8282-8282")
+                .openTime(Time.valueOf(LocalTime.of(8, 0)))
+                .endTime(Time.valueOf(LocalTime.of(22, 0)))
+                .minOrderPrice(10000)
+                .storeStatus(StoreStatus.LIVE)
+                .build();
+
+        StoreUpdateRequestDto requestDto = new StoreUpdateRequestDto(
+                "BBQ 인천학익점",
+                "인천시 미추홀구",
+                "010-0159-0104",
+                LocalTime.of(11, 0),
+                LocalTime.of(23, 0),
+                18000
+        );
+
+        given(storeRepository.findById(1L)).willReturn(Optional.of(store));
+
+        // when
+        StoreUpdateResponseDto response = storeService.updateStore(1L, 1L, requestDto);
+
+        // then
+        assertThat(response.getId()).isEqualTo(1L);
+        assertThat(store.getStoreName()).isEqualTo("BBQ 인천학익점");
+        assertThat(store.getStorePhoneNumber()).isEqualTo("010-0159-0104");
+        assertThat(store.getOpenTime().toLocalTime()).isEqualTo(LocalTime.of(11, 0));
+        assertThat(store.getEndTime().toLocalTime()).isEqualTo(LocalTime.of(23, 0));
+        assertThat(store.getMinOrderPrice()).isEqualTo(18000);
+    }
+
+    @Test
+    void 매장_수정_실패_소유자_아님() {
+
+        // given
+        Users owner = Users.builder()
+                .id(1L)
+                .email("testowner1@email.com")
+                .nickname("초코라떼")
+                .userRole(UserRole.OWNER)
+                .build();
+
+        Stores store = Stores.builder()
+                .id(1L)
+                .users(owner)
+                .storeName("초코라떼가제일좋아")
+                .storeAddress("인천시 미추홀구")
+                .storePhoneNumber("010-8282-8282")
+                .openTime(Time.valueOf(LocalTime.of(8, 0)))
+                .endTime(Time.valueOf(LocalTime.of(22, 0)))
+                .minOrderPrice(10000)
+                .storeStatus(StoreStatus.LIVE)
+                .build();
+
+        StoreUpdateRequestDto requestDto = new StoreUpdateRequestDto(
+                "BBQ 인천학익점",
+                "인천시 미추홀구",
+                "010-0159-0104",
+                LocalTime.of(11, 0),
+                LocalTime.of(23, 0),
+                18000
+        );
+
+        given(storeRepository.findById(1L)).willReturn(Optional.of(store));
+
+        // when, then
+        assertThatThrownBy(() -> storeService.updateStore(1L, 999L, requestDto))
+                .isInstanceOf(GlobalException.class)
+                .hasMessageContaining(ErrorCode.STORE_OWNER_MISMATCH.getMessage());
+    }
+
+    @Test
+    void 매장_수정_실패_매장_없음() {
+
+        // given
+        StoreUpdateRequestDto requestDto = new StoreUpdateRequestDto(
+                "BBQ 인천학익점",
+                "인천시 미추홀구",
+                "010-0159-0104",
+                LocalTime.of(11, 0),
+                LocalTime.of(23, 0),
+                18000
+        );
+
+        given(storeRepository.findById(1L)).willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() -> storeService.updateStore(1L, 1L, requestDto))
+                .isInstanceOf(GlobalException.class)
+                .hasMessageContaining(ErrorCode.STORE_NOT_FOUND.getMessage());
     }
 }
