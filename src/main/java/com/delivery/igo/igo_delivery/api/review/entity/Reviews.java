@@ -57,6 +57,11 @@ public class Reviews extends BaseEntity {
         this.reviewStatus = ReviewStatus.DELETED;
     }
 
+    public void update(String content, Integer rating) {
+        this.content = content;
+        this.rating = rating;
+    }
+
     public static Reviews of(Users user, Orders order, Stores store, ReviewRequestDto requestDto) {
 
         return Reviews.builder()
