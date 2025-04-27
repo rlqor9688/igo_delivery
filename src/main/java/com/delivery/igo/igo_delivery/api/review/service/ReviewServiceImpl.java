@@ -127,7 +127,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new GlobalException(ErrorCode.REVIEW_STORE_IS_CLOSED);
         }
 
-        List<Reviews> reviewList = reviewRepository.findAllByStores_IdAndRatingBetween(storesId, minRating, maxRating);
+        List<Reviews> reviewList = reviewRepository.findAllByStores_IdAndRatingBetweenOrderByCreatedAtDesc(storesId, minRating, maxRating);
 
         return reviewList.stream()
                 .map(ReviewResponseDto::from)

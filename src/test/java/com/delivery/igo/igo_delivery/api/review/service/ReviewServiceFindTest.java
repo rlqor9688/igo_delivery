@@ -74,14 +74,14 @@ public class ReviewServiceFindTest {
     void 리뷰_조회에_성공한다() {
         // given
         given(storeRepository.findById(store.getId())).willReturn(Optional.of(store));
-        given(reviewRepository.findAllByStores_IdAndRatingBetween(store.getId(), 1, 5)).willReturn(List.of(review));
+        given(reviewRepository.findAllByStores_IdAndRatingBetweenOrderByCreatedAtDesc(store.getId(), 1, 5)).willReturn(List.of(review));
 
         // when
         reviewService.findAllReviewByStore(store.getId(), 1, 5);
 
         // then
         verify(storeRepository).findById(store.getId());
-        verify(reviewRepository).findAllByStores_IdAndRatingBetween(review.getId(), 1, 5);
+        verify(reviewRepository).findAllByStores_IdAndRatingBetweenOrderByCreatedAtDesc(review.getId(), 1, 5);
     }
 
     @Test
