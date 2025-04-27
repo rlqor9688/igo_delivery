@@ -14,6 +14,8 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청값 입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾을 수 없습니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 서버 오류 발생, 확인 후 조치하겠습니다."),
+
 
     // Auth
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "로그인 실패, 아이디나 비밀번호를 확인해 주세요."),
