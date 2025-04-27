@@ -58,6 +58,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MenuReadResponseDto> findAllMenu(Long storesId) {
 
         Stores store = storeRepository.findById(storesId)
@@ -69,6 +70,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MenuReadResponseDto findMenuById(Long storesId, Long id) {
 
         Stores store = storeRepository.findById(storesId)
