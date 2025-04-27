@@ -14,6 +14,6 @@ public interface CartItemsRepository extends JpaRepository<CartItems, Long> {
 
     Optional<CartItems> findByCartsAndMenus(Carts carts, Menus menus);
 
-    //장바구니 초기화
     void deleteAllByCarts(Carts carts);
+
 }

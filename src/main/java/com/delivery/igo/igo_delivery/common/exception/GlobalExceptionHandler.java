@@ -83,6 +83,4 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
         return new ResponseEntity<>(errorDto, ErrorCode.VALID_BAD_REQUEST.getHttpStatus());
     }
-
-
 }
