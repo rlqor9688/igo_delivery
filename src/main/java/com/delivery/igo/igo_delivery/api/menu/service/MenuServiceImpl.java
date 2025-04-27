@@ -58,6 +58,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MenuReadResponseDto> findAllMenu(Long storesId) {
 
         Stores store = storeRepository.findById(storesId)
@@ -66,6 +67,18 @@ public class MenuServiceImpl implements MenuService {
         List<Menus> menusList = menuRepository.findMenusByStoreIdOrderByCreatedAtDesc(storesId, MenuStatus.LIVE);
 
         return menusList.stream().map(MenuReadResponseDto::from).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MenuReadResponseDto findMenuById(Long storesId, Long id) {
+
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        Menus findMenu = getMenuWithAccessCheck(id, storesId);
+
+        return MenuReadResponseDto.from(findMenu);
     }
 
     private Users getUserWithAccessCheck(Long id) {

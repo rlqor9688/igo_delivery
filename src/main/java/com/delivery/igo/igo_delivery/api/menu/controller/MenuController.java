@@ -52,4 +52,12 @@ public class MenuController {
 
         return ResponseEntity.ok(allMenu);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MenuReadResponseDto> findMenuById(@PathVariable Long storesId, @PathVariable Long id) {
+
+        MenuReadResponseDto responseDto = menuService.findMenuById(storesId, id);
+
+        return ResponseEntity.ok(responseDto);
+    }
 }
