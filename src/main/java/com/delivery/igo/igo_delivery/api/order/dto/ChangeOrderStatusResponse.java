@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class ChangeOrderStatusResponse {
 
     private Long orderId;
+    private Long storeId;
     private String nickname;
     private OrderStatus orderStatus;
     private String orderAddress;
@@ -20,9 +21,10 @@ public class ChangeOrderStatusResponse {
     private LocalDateTime modifiedAt;
 
 
-    public static ChangeOrderStatusResponse from(Orders orders) {
+    public static ChangeOrderStatusResponse from(Orders orders, Long storeId) {
         return new ChangeOrderStatusResponse(
                 orders.getId(),
+                storeId,
                 orders.getUsers().getNickname(),
                 orders.getOrderStatus(),
                 orders.getOrderAddress(),

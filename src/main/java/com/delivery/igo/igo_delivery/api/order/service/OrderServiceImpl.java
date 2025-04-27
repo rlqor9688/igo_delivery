@@ -90,7 +90,7 @@ public class OrderServiceImpl implements OrderService{
         orderItemsRepository.saveAll(orderItems);
         //주문 성공시 장바구니 메뉴 목록 삭제
         cartItemsRepository.deleteAll(cartItems);
-        return OrderResponse.from(orders,orderItems);
+        return OrderResponse.from(orders,orderItems, stores.getId());
     }
 
     //주문상태 변경
@@ -116,7 +116,8 @@ public class OrderServiceImpl implements OrderService{
                 throw new GlobalException(ErrorCode.CONSUMER_CANNOT_CHANGE_STATUS);
             }
             orders.changeStatus(requestStatus);
-            return ChangeOrderStatusResponse.from(orders);
+            Stores stores = orderItemsRepository.findByOrdersId(orders.getId()).get(0).getMenus().getStores();
+            return ChangeOrderStatusResponse.from(orders, stores.getId());
         }
         // 요쳥한 유저가 매장 주인인 경우
         if (authUser.getUserRole() == UserRole.OWNER) {
@@ -129,7 +130,7 @@ public class OrderServiceImpl implements OrderService{
                 throw new GlobalException(ErrorCode.OWNER_CANNOT_CANCEL_ORDER);
             }
             orders.changeStatus(requestStatus);
-            return ChangeOrderStatusResponse.from(orders);
+            return ChangeOrderStatusResponse.from(orders, stores.getId());
         }
         throw new GlobalException(ErrorCode.INVALID_USER_ROLE);
     }
@@ -158,7 +159,8 @@ public class OrderServiceImpl implements OrderService{
                 .allMatch(ownerId -> ownerId.equals(authUser.getId()));
 
         if (isOrderUser || isStoreOwner) {
-            return OrderResponse.from(orders,orderItems);
+            Stores stores = orderItems.get(0).getMenus().getStores();
+            return OrderResponse.from(orders,orderItems,stores.getId());
         }
         throw new GlobalException(ErrorCode.FORBIDDEN);
     }
