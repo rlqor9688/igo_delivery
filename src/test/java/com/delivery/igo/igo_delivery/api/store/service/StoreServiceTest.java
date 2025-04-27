@@ -2,12 +2,15 @@ package com.delivery.igo.igo_delivery.api.store.service;
 
 import com.delivery.igo.igo_delivery.api.store.dto.StoreListResponseDto;
 import com.delivery.igo.igo_delivery.api.store.dto.StoreRequestDto;
+import com.delivery.igo.igo_delivery.api.store.dto.StoreResponseDto;
 import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.UserRole;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
 import com.delivery.igo.igo_delivery.api.user.repository.UserRepository;
+import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
+import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,12 +22,15 @@ import org.springframework.data.domain.PageRequest;
 
 
 import java.sql.Time;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -165,5 +171,43 @@ public class StoreServiceTest {
         // then
         assertThat(result.getTotalElements()).isZero();
         assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    void 매장_단건_조회_성공() {
+
+        // given
+        Stores store = Stores.builder()
+                .id(1L)
+                .storeName("초코라떼가제일좋아")
+                .storeAddress("인천시 미추홀구")
+                .storePhoneNumber("010-8282-8282")
+                .openTime(Time.valueOf(LocalTime.of(8, 0)))
+                .endTime(Time.valueOf(LocalTime.of(22, 0)))
+                .minOrderPrice(10000)
+                .storeStatus(StoreStatus.LIVE)
+                .build();
+
+        given(storeRepository.findById(1L)).willReturn(Optional.of(store));
+
+        // when
+        StoreResponseDto response = storeService.getStore(1L);
+
+        // then
+        assertThat(response.getStoreName()).isEqualTo("초코라떼가제일좋아");
+        assertThat(response.getStoreAddress()).isEqualTo("인천시 미추홀구");
+        assertThat(response.getMinOrderPrice()).isEqualTo(10000);
+    }
+
+    @Test
+    void 매장_단건_조회_매장_없음() {
+
+        // given
+        given(storeRepository.findById(9999L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> storeService.getStore(9999L))
+                .isInstanceOf(GlobalException.class)
+                .hasMessage(ErrorCode.STORE_NOT_FOUND.getMessage());
     }
 }
