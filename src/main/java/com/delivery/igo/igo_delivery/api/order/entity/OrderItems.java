@@ -38,6 +38,11 @@ public class OrderItems {
     public OrderItems(Orders orders, CartItems cartItems){
         this.orders= orders;
         this.menus = cartItems.getMenus();
+        this.orderItemPrice = cartItems.getCartPrice();
         this.orderQuantity = cartItems.getCartQuantity();
+    }
+
+    public long totalPrice() {
+        return orderItemPrice * orderQuantity.longValue();
     }
 }

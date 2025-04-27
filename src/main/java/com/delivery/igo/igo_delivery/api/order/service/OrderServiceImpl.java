@@ -19,6 +19,10 @@ import com.delivery.igo.igo_delivery.common.exception.ErrorCode;
 import com.delivery.igo.igo_delivery.common.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +42,9 @@ public class OrderServiceImpl implements OrderService{
     private final CartRepository cartRepository;
     private final CartItemsRepository cartItemsRepository;
 
-    //todo : 관련 로직 리팩토링, 예외 처리
+    private static final int DEFAULT_PAGE_NUMBER = 0;
+    private static final int MIN_PAGE_SIZE = 1;
+    private static final int DEFAULT_PAGE_SIZE = 10;
 
     //주문 생성
     @Transactional
@@ -82,7 +88,8 @@ public class OrderServiceImpl implements OrderService{
                         cartItem
                 )).toList();
         orderItemsRepository.saveAll(orderItems);
-
+        //주문 성공시 장바구니 메뉴 목록 삭제
+        cartItemsRepository.deleteAll(cartItems);
         return OrderResponse.from(orders,orderItems);
     }
 
@@ -156,5 +163,56 @@ public class OrderServiceImpl implements OrderService{
         throw new GlobalException(ErrorCode.FORBIDDEN);
     }
 
+    //주문 목록 조회
+    @Override
+    public Page<OrderListResponse> findOrderList(Long authId, Pageable pageable) {
 
+        Users users = userRepository.findById(authId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+
+        //페이지 수 확인 (page,size 잘못된 요청시 최소값 전환)
+        int page = Math.max(pageable.getPageNumber(), DEFAULT_PAGE_NUMBER);
+        int size = pageable.getPageSize() < MIN_PAGE_SIZE ? DEFAULT_PAGE_SIZE : pageable.getPageSize();
+        Pageable correctedPageable = PageRequest.of(page,size,Sort.by(Sort.Order.desc("createdAt")));
+        Page<Orders> ordersPage;
+
+        // 요청한 유저의 userRole이 유저 일 경우(본인의 주문만 호출)
+        if (users.getUserRole() == UserRole.CONSUMER) {
+            ordersPage = orderRepository.findByUsersId(users.getId(), correctedPageable);
+        }
+        // 요쳥한 유저가 매장 주인인 경우 (본인 매장의 주문만 호출)
+        else if (users.getUserRole() == UserRole.OWNER) {
+            ordersPage = orderRepository.findByOwnerId(users.getId(),correctedPageable);
+        }
+        // 요청한 유저의 역할이 고객, 매장 주인 둘다 아닐 경우
+        else{
+            throw new GlobalException(ErrorCode.INVALID_USER_ROLE);
+        }
+
+        return ordersPage.map(orders -> {
+            List<OrderItems> orderItems = orderItemsRepository.findByOrdersId(orders.getId());
+            if (orderItems.isEmpty()) {
+                throw new GlobalException(ErrorCode.ORDER_NOT_FOUND);
+            }
+
+            // 주문한 물건 리스트중 가장 첫번째 호출
+            // 가게 이름, 처음 주문한 메뉴명, 메뉴 종류 수 호출
+            OrderItems firstOrderItem = orderItems.get(0);
+            String storeName = firstOrderItem.getMenus().getStores().getStoreName();
+            String menuName = firstOrderItem.getMenus().getMenuName();
+            int countMenuType = orderItems.size();
+
+            // 주문 총 금액: orderItems 전체의 totalPrice() 합
+            long totalPrice = orderItems.stream()
+                    .mapToLong(OrderItems::totalPrice)
+                    .sum();
+
+            return OrderListResponse.from(storeName,
+                                        menuName,
+                                        totalPrice,
+                                        countMenuType,
+                                        orders.getCreatedAt(),
+                                        orders.getOrderStatus());
+        });
+    }
 }
