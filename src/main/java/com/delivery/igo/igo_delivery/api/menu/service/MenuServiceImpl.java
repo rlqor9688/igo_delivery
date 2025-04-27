@@ -68,6 +68,17 @@ public class MenuServiceImpl implements MenuService {
         return menusList.stream().map(MenuReadResponseDto::from).collect(Collectors.toList());
     }
 
+    @Override
+    public MenuReadResponseDto findMenuById(Long storesId, Long id) {
+
+        Stores store = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+
+        Menus findMenu = getMenuWithAccessCheck(id, storesId);
+
+        return MenuReadResponseDto.from(findMenu);
+    }
+
     private Users getUserWithAccessCheck(Long id) {
 
         Users user = userRepository.findById(id)
