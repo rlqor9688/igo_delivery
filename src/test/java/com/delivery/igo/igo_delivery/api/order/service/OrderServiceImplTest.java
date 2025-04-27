@@ -24,10 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import java.sql.Time;
 import java.time.LocalTime;
@@ -145,7 +142,7 @@ class OrderServiceTest {
                 .orders(orders)
                 .build();
         orderItemsList = List.of(orderItems);
-        pageable = PageRequest.of(0, 5);
+        pageable = PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt")));
     }
 
     @Test
