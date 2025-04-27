@@ -30,37 +30,30 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getMyInfo(@PathVariable Long id, @Auth AuthUser authUser) {
         UserResponseDto responseDto = userService.findUserById(id, authUser);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateMyInfo(@PathVariable Long id,
                                                         @Auth AuthUser authUser,
                                                         @Valid @RequestBody UpdateUserRequestDto requestDto) {
-
         UserResponseDto responseDto = userService.updateUserById(id, authUser, requestDto);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateMyPassword(@PathVariable Long id,
-                                               @Auth AuthUser authUser,
-                                               @Valid @RequestBody UpdatePasswordRequestDto requestDto) {
-
+                                                 @Auth AuthUser authUser,
+                                                 @Valid @RequestBody UpdatePasswordRequestDto requestDto) {
         userService.updateUserPasswordById(id, authUser, requestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id,
                                            @Auth AuthUser authUser,
                                            @Valid @RequestBody DeleteUserRequestDto requestDto) {
-
         userService.deleteUser(id, authUser, requestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+        return ResponseEntity.noContent().build();
     }
 }
