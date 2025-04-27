@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Entity
@@ -70,5 +71,16 @@ public class Stores extends BaseEntity {
         if (!Objects.equals(this.getUsers().getId(), user.getId())) {
             throw new GlobalException(ErrorCode.STORE_OWNER_MISMATCH);
         }
+    }
+
+    // 매장 정보 수정
+    public void updateStoreInfo(String storeName, String storeAddress, String storePhoneNumber,
+                                LocalTime openTime, LocalTime endTime, Integer minOrderPrice) {
+        this.storeName = storeName;                 // 매장 이름 수정
+        this.storeAddress = storeAddress;           // 매장 주소 수정
+        this.storePhoneNumber = storePhoneNumber;   // 매장 전화번호 수정
+        this.openTime = Time.valueOf(openTime);     // 영업 시작 시간 수정
+        this.endTime = Time.valueOf(endTime);       // 영업 종료 시간 수정
+        this.minOrderPrice = minOrderPrice;         // 최소 주문 금액 수정
     }
 }
