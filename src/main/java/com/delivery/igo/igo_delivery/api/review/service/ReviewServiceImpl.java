@@ -11,6 +11,7 @@ import com.delivery.igo.igo_delivery.api.review.dto.ReviewUpdateRequestDto;
 import com.delivery.igo.igo_delivery.api.review.entity.ReviewStatus;
 import com.delivery.igo.igo_delivery.api.review.entity.Reviews;
 import com.delivery.igo.igo_delivery.api.review.repository.ReviewRepository;
+import com.delivery.igo.igo_delivery.api.store.entity.StoreStatus;
 import com.delivery.igo.igo_delivery.api.store.entity.Stores;
 import com.delivery.igo.igo_delivery.api.store.repository.StoreRepository;
 import com.delivery.igo.igo_delivery.api.user.entity.Users;
@@ -116,14 +117,22 @@ public class ReviewServiceImpl implements ReviewService {
         findReview.update(requestDto.getContent(), requestDto.getRating());
     }
 
-//    @Override
-//    public List<ReviewResponseDto> findAllReviewByStore(Long storesId) {
-//        List<Reviews> reviewList = reviewRepository.findAllByStores_id(storesId);
-//
-//        return reviewList.stream()
-//                .map(ReviewResponseDto::from)
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> findAllReviewByStore(Long storesId, int minRating, int maxRating) {
+        // 매장 조회 + 매장 활성화 여부 조회
+        Stores findStore = storeRepository.findById(storesId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.STORE_NOT_FOUND));
+        if (Objects.equals(findStore.getStoreStatus(), StoreStatus.CLOSED)) {
+            throw new GlobalException(ErrorCode.REVIEW_STORE_IS_CLOSED);
+        }
+
+        List<Reviews> reviewList = reviewRepository.findAllByStoresIdAndRatingRange(storesId, minRating, maxRating);
+
+        return reviewList.stream()
+                .map(ReviewResponseDto::from)
+                .collect(Collectors.toList());
+    }
 
     // 리뷰 수정 권한 검증(작성자=로그인유저)
     private void validateReviewAccess(Reviews review, AuthUser authUser) {

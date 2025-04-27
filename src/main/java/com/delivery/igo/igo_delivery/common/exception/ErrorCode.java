@@ -75,7 +75,8 @@ public enum ErrorCode {
     REVIEW_ORDERITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 아이템을 찾을 수 없습니다."),
     REVIEW_ORDER_INVALID(HttpStatus.BAD_REQUEST, "주문이 완료된 건에만 리뷰를 남길 수 있습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
-    REVIEW_IS_DELETED(HttpStatus.BAD_REQUEST, "삭제된 리뷰는 수정할 수 없습니다." );
+    REVIEW_IS_DELETED(HttpStatus.BAD_REQUEST, "삭제된 리뷰는 수정할 수 없습니다." ),
+    REVIEW_STORE_IS_CLOSED(HttpStatus.BAD_REQUEST, "삭제된 매장입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
