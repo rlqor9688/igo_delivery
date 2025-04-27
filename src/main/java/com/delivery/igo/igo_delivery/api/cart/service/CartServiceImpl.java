@@ -99,6 +99,12 @@ public class CartServiceImpl implements CartService{
     @Override
     @Transactional
     public UpdateCartItemResponseDto updateCartItem(Long cartItemId, AuthUser authUser, UpdateCartItemRequestDto requestDto) {
+
+        Users users = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
+        users.validateAccess(authUser.getId());
+        users.validateConsumer();
+
         CartItems findCartItem = cartItemsRepository.findById(cartItemId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.CART_ITEM_NOT_FOUND));
 
