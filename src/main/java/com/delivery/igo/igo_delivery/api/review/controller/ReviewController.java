@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reviews")
@@ -35,5 +37,10 @@ public class ReviewController {
         reviewService.updateReview(reviewId, authUser, requestDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+//    @GetMapping
+//    public ResponseEntity<List<ReviewResponseDto>> findAllReviewByStore(@RequestParam Long storesId) {
+//        return new ResponseEntity<>(reviewService.findAllReviewByStore(storesId), HttpStatus.OK);
+//    }
 
 }

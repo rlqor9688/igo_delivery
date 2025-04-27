@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -57,7 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
         // DB에서 주문 조회 + 본인 확인 + 주문 상태 검증
         Orders findOrder = orderRepository.findById(requestDto.getOrdersId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.ORDER_NOT_FOUND));
-        findOrder.getUsers().validateAccess(authUser);// 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
+        findOrder.getUsers().validateAccess(authUser.getId());// 주문의 usersId와 authUser의 usersId 가 같은지 검증 (본인이 남긴 주문에 리뷰를 남기는 상황인지 검증)
         if (!Objects.equals(findOrder.getOrderStatus(), OrderStatus.COMPLETE)) { // 주문 완료인 경우에만 리뷰를 남길 수 있음
             throw new GlobalException(ErrorCode.REVIEW_ORDER_INVALID);
         }
@@ -115,9 +116,18 @@ public class ReviewServiceImpl implements ReviewService {
         findReview.update(requestDto.getContent(), requestDto.getRating());
     }
 
+//    @Override
+//    public List<ReviewResponseDto> findAllReviewByStore(Long storesId) {
+//        List<Reviews> reviewList = reviewRepository.findAllByStores_id(storesId);
+//
+//        return reviewList.stream()
+//                .map(ReviewResponseDto::from)
+//                .collect(Collectors.toList());
+//    }
+
     // 리뷰 수정 권한 검증(작성자=로그인유저)
     private void validateReviewAccess(Reviews review, AuthUser authUser) {
-        review.getUsers().validateAccess(authUser);
+        review.getUsers().validateAccess(authUser.getId());
     }
 
     // 유저 유효성 검증(UserStatus=LIVE, UserRole = CONSUMER)
