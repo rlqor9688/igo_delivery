@@ -52,7 +52,7 @@ public class CartServiceImpl implements CartService{
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
         // 해당 메뉴가 장바구니에 존재하는지 여부 확인 후 메뉴 및 수량 추가
-        Optional<CartItems> cartItems = cartItemsRepository.findByCartsAndMenus(carts, menus);
+        Optional<CartItems> cartItems = cartItemsRepository.findByCarts(carts);
         if (cartItems.isPresent()) {
             // 상품의 데이터를 가져옴
             CartItems existingItem = cartItems.get();
