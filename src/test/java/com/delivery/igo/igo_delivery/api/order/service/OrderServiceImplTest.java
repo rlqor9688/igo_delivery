@@ -178,6 +178,7 @@ class OrderServiceTest {
 
         given(userRepository.findById(userId)).willReturn(Optional.of(users));
         given(orderRepository.findById(orderId)).willReturn(Optional.of(orders));
+        given(orderItemsRepository.findByOrdersId(orderId)).willReturn(List.of(orderItems));
 
         // when
         ChangeOrderStatusResponse response = orderService.changeOrderStatus(authConsumer, request, orderId);
