@@ -23,7 +23,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewResponseDto> createReview(
             @Auth AuthUser authUser,
-            ReviewRequestDto requestDto)
+            @RequestBody ReviewRequestDto requestDto)
     {
         return new ResponseEntity<>(reviewService.createReview(authUser, requestDto), HttpStatus.CREATED);
     }
@@ -32,7 +32,7 @@ public class ReviewController {
     public ResponseEntity<Void> updateReview(
             @PathVariable Long reviewId,
             @Auth AuthUser authUser,
-            ReviewUpdateRequestDto requestDto
+            @RequestBody ReviewUpdateRequestDto requestDto
     ) {
         reviewService.updateReview(reviewId, authUser, requestDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

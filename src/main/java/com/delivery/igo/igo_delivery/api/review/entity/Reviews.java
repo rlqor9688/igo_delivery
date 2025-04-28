@@ -70,6 +70,7 @@ public class Reviews extends BaseEntity {
                 .stores(store)
                 .content(requestDto.getContent())
                 .rating(requestDto.getRating())
+                .reviewStatus(ReviewStatus.LIVE)
                 .build();
     }
 }
