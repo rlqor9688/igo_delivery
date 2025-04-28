@@ -1,7 +1,7 @@
 package com.delivery.igo.igo_delivery.api.cart.dto.request;
 
 import com.delivery.igo.igo_delivery.api.cart.entity.CartItemQuantityType;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,6 +11,6 @@ public class UpdateCartItemRequestDto {
 
     // 증가 - INCREASE
     // 감소 - DECREASE
-    @NotBlank
+    @NotNull
     private final CartItemQuantityType actionType;
 }
